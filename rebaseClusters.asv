@@ -1,0 +1,11 @@
+function newClusters = rebaseClusters(Clusters,k)
+    newClusters = zeros(size(Clusters));
+    newClusters(1,:) = Clusters(1,:);
+    for i=2:size(Clusters,1)
+        permutations = perms(range(1,k));
+        for j=1:size(permutations,1)
+            ttcluster = zeros(1,size(Clusters,2));
+            for k=1:size()
+        end
+    end
+end
