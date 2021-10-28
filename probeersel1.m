@@ -1,3 +1,5 @@
+%collection of tests on tensors. Just to get a feeling.
+
 r = 5;
 inc = 0.1;
 

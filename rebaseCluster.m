@@ -1,3 +1,10 @@
+%REBASECLUSTER: Set two clusters to the same base. Permutates the second
+%   cluster to find a cluster close to first.
+%parameters:
+%   c1,c2: clusters to rebase.
+%   k: number of clusters.
+%returns
+%   best: best permutation of c2.
 function best = rebaseCluster(c1,c2,k)
     permutations = perms([1:k]);
     bestDist = 0;

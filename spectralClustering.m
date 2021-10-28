@@ -1,6 +1,12 @@
-% Dist: Distance or similarity matrix (depending on type parameter)
-% dim: dim. of the used features.
-% k: nb of clusters.
+%SPECTRALCLUSTERING: cluster instances based on its distance/similarity
+%       matrix and the spectral clustering method.
+%parameters:
+%   Dist: Distance or similarity matrix (depending on type parameter)
+%   dim: dim. of the used features.
+%   k: nb of clusters.
+%returns:
+%   Clusters: clustering of the instances.
+%based on paper: On Spectral Clustering: Analysis and an algorithm. Ng
 function Clusters = spectralClustering(Dist,dim,k,type)
     sz = size(Dist);
     A = Dist;

@@ -1,4 +1,8 @@
-%Thanks wikipedia
+%DTWDISTANCE calculate the dtw- distance between 2 timeseries.
+%parameters: 
+%   a1,a2: timeseries
+%returns:
+%   dist: dtw-distance between a1 and a2
 function dist = dtwDistance(a1,a2)
     n = max(size(a1)); m= max(size(a2));
     DTW = Inf*ones(n+1,m+1);
@@ -11,6 +15,7 @@ function dist = dtwDistance(a1,a2)
         end
     end
     %sqrt to bring distances closer together. Can I do that?
+    %- already not a distance, so i guess so.
     dist = sqrt(DTW(i+1,j+1));
 
 

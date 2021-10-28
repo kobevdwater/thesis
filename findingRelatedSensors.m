@@ -1,5 +1,13 @@
+%FINDINGRELATEDSENSORS find the similarity of different sensors and cluster
+%   similar sensors. By creating a TUCKER-2 decomp.
+%parameters: 
+%   D: distance tensor with modes (person x person x sensor)
+%returns:
+%   similarity: similarity matrix of sensors (sensor x sensor)
+%   clusters: clustering of different sensor based on 
+%       spectral clustering of the similarity matrix 
 %based on paper: Tensor decompositions for feature extraction and
-%classification of high dimensional datasets.Phan and Cichocki
+%   classification of high dimensional datasets. Phan and Cichocki
 function [similarity,clusters] = findingRelatedSensors(D)
     %First we get a low rank TUCKER-2 decomp. (via TUCKER-3)
     [U,S,~] = lmlra(D,[4,4,size(D,3)]);
