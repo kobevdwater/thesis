@@ -1,10 +1,14 @@
+%DISTANCETENSOR class representing a distance tensor. Using this class
+%   allows us to calculate values when they are needed.
 classdef DistanceTensor < handle
     properties
         Sz
         Data
         Iset
+        Slice
     end
     methods
+        
         function obj = DistanceTensor()
             obj.Sz = [10,10,10];
             obj.Data = NaN(obj.Sz(1),obj.Sz(2),obj.Sz(3));
@@ -12,7 +16,7 @@ classdef DistanceTensor < handle
                 obj.Data(i,i,:) = 0;
             end
             obj.Iset(obj.Sz(1)).data = [];
-            'AHHHHHHH'
+            obj.Slice = NaN;
         end
 
         function sref = subsref(obj,s)
@@ -26,20 +30,38 @@ classdef DistanceTensor < handle
             end
         end
 
+        function sl = setSlice(obj,i)
+            if i>obj.Sz(3)
+                error('Not a valid slice. The nb of the slice should be smaller that the depth of the tensor.')
+            end
+            obj.Slice = i;
+            sl = i;
+        end
+
         function varargout = size(this,varargin)
             [varargout{1:nargout}] = builtin('size',this.Data,varargin{:});
         end
-        
-        function data = calcData(obj,indices)
+
+        function [I,J,K] = parseIndices(obj,indices)
             IJK = {};
-            for i = 1:3
+            for i = 1:length(indices)
                 if indices{1,i}==':'
                     IJK{i} = [1:obj.Sz(i)];
                 else
                     IJK{i} = indices{1,i};
                 end
             end
+            if length(indices) == 2
+                if isnan(obj.Slice)
+                    error('Please set the slice before operating on it.')
+                end
+                IJK{3} = obj.Slice;
+            end
             I = IJK{1};J=IJK{2};K=IJK{3};
+        end
+        
+        function data = calcData(obj,indices)
+            [I,J,K] = obj.parseIndices(indices);
             for i = [I J]
                 if isempty(obj.Iset(i).data)
                     item = sprintf('/skeleton_%d/block0_values',i);
@@ -50,11 +72,12 @@ classdef DistanceTensor < handle
             for i=1:length(I)
                 for j=1:length(J)
                     for k=1:length(K)
-                        
                         if isnan(obj.Data(I(i),J(j),K(k)))
-                            dis = dtwDistance(obj.Iset(I(i)).data(K(k),:),obj.Iset(J(j)).data(K(k),:));
+                            dis = dtwDistance(obj.Iset(I(i)).data(K(k),:),obj.Iset(J(j)).data(K(k),:),1);
                             data(i,j,k) = dis;
                             obj.Data(I(i),J(j),K(k)) = dis;
+                            obj.Data(J(j),I(i),K(k)) = dis;
+
                         else
                             data(i,j,k) = obj.Data(I(i),J(j),K(k));
                         end
@@ -64,6 +87,15 @@ classdef DistanceTensor < handle
             end
 
         end
-
+        
+        function sr = getSampleRate(obj,varargin)
+            if isempty(varargin)
+                sr = sum(~isnan(obj.Data),'all')/(prod(obj.Sz));
+            else
+                [I,J,K] = obj.parseIndices(varargin);
+                totalSum = sum(~isnan(obj.Data(I,J,K)),'all');
+                sr = totalSum/(length(I)*length(J)*length(K));
+            end
+        end
     end
 end
