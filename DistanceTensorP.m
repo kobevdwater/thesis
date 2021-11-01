@@ -1,6 +1,6 @@
-%DISTANCETENSOR class representing a distance tensor. Using this class
+%DISTANCETENSORP class representing a distance tensor. Using this class
 %   allows us to calculate values when they are needed.
-classdef DistanceTensor < handle
+classdef DistanceTensorP < handle
     properties
         Sz
         Data
@@ -9,8 +9,8 @@ classdef DistanceTensor < handle
     end
     methods
         
-        function obj = DistanceTensor()
-            obj.Sz = [20,20,10];
+        function obj = DistanceTensorP()
+            obj.Sz = [75,75,75];
             obj.Data = NaN(obj.Sz(1),obj.Sz(2),obj.Sz(3));
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:) = 0;
@@ -62,30 +62,55 @@ classdef DistanceTensor < handle
         
         function data = calcData(obj,indices)
             [I,J,K] = obj.parseIndices(indices);
+            tic
             for i = [I J]
                 if isempty(obj.Iset(i).data)
                     item = sprintf('/skeleton_%d/block0_values',i);
                     obj.Iset(i).data = h5read('amie/amie-kinect-data.hdf',item);
                 end
             end
+ 
+            toCalc = {};
+            toWrite = {};
             data = zeros(length(I),length(J),length(K));
+            n = 0;
+            m = 0;
             for i=1:length(I)
                 for j=1:length(J)
                     for k=1:length(K)
                         if isnan(obj.Data(I(i),J(j),K(k)))
-                            dis = prunedDTW(obj.Iset(I(i)).data(K(k),:),obj.Iset(J(j)).data(K(k),:),1);
-                            data(i,j,k) = dis;
-                            obj.Data(I(i),J(j),K(k)) = dis;
-                            obj.Data(J(j),I(i),K(k)) = dis;
-
+                            n = n+1;
+                            toCalc(n).a1 = obj.Iset(I(i)).data(K(k),:);
+                            toCalc(n).a2 = obj.Iset(J(j)).data(K(k),:);
+                            toCalc(n).ijk = [i,j,k];
+                            obj.Data(J(j),I(i),K(k)) = -1;
+                        elseif obj.Data(I(i),J(j),K(k)) == -1
+                            m=m+1;
+                            toWrite(m).ijk = [i,j,k];
                         else
                             data(i,j,k) = obj.Data(I(i),J(j),K(k));
                         end
-
                     end
                 end
             end
+            newData = zeros(n,1);
 
+            parfor i=1:n
+                dis = prunedDTW(toCalc(i).a1,toCalc(i).a2,200);
+                newData(i) = dis;
+            end
+            for p=1:n
+                ijk = toCalc(p).ijk;
+                i=ijk(1);j=ijk(2);k=ijk(3);
+                data(i,j,k) = newData(p);
+                obj.Data(I(i),J(j),K(k)) = newData(p);
+                obj.Data(J(j),I(i),K(k)) = newData(p);
+            end
+            for p=1:m
+                ijk = toWrite(p).ijk;
+                i=ijk(1);j=ijk(2);k=ijk(3);
+                data(i,j,k) = obj.Data(I(i),J(j),K(k));
+            end
         end
         
         function sr = getSampleRate(obj,varargin)

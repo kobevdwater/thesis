@@ -1,7 +1,7 @@
 function Yh = CRMDFMWA1(Y,r)
     [i,j,k] = size(Y);
-    %[I,J,K] = adaptiveIndexChoise(Y,r)
-    I = randi(i,1,r);J=randi(j,1,r);K=randi(k,r,1,r);
+    [I,J,K] = adaptiveIndexChoise(Y,r)
+    %I = randi(i,1,r);J=randi(j,1,r);K=randi(k,r,1,r);
     
     W = Y(I,J,K);
     C1 = Y(:,J,K);C2 = Y(I,:,K);C3 = Y(I,J,:);
