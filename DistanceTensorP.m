@@ -6,12 +6,14 @@ classdef DistanceTensorP < handle
         Data
         Iset
         Slice
+        Accesed
     end
     methods
         
         function obj = DistanceTensorP()
-            obj.Sz = [75,75,75];
+            obj.Sz = [180,180,75];
             obj.Data = NaN(obj.Sz(1),obj.Sz(2),obj.Sz(3));
+            obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3));
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:) = 0;
             end
@@ -45,7 +47,7 @@ classdef DistanceTensorP < handle
         function [I,J,K] = parseIndices(obj,indices)
             IJK = {};
             for i = 1:length(indices)
-                if indices{1,i}==':'
+                if strcmp(indices{1,i},':')
                     IJK{i} = [1:obj.Sz(i)];
                 else
                     IJK{i} = indices{1,i};
@@ -62,7 +64,7 @@ classdef DistanceTensorP < handle
         
         function data = calcData(obj,indices)
             [I,J,K] = obj.parseIndices(indices);
-            tic
+            obj.Accesed(I,J,K) = 1;
             for i = [I J]
                 if isempty(obj.Iset(i).data)
                     item = sprintf('/skeleton_%d/block0_values',i);
@@ -115,12 +117,16 @@ classdef DistanceTensorP < handle
         
         function sr = getSampleRate(obj,varargin)
             if isempty(varargin)
-                sr = sum(~isnan(obj.Data),'all')/(prod(obj.Sz));
+                sr = sum(obj.Accesed,'all')/(prod(obj.Sz));
             else
                 [I,J,K] = obj.parseIndices(varargin);
-                totalSum = sum(~isnan(obj.Data(I,J,K)),'all');
+                totalSum = sum(obj.Accesed(I,J,K),'all');
                 sr = totalSum/(length(I)*length(J)*length(K));
             end
+        end
+        function zr = resetSamplingRate(obj)
+            obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3));
+            zr = 0;
         end
     end
 end
