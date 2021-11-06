@@ -1,5 +1,5 @@
 retries = 1;
-rrange = 1:15;
+rrange = 1:10;
 results = zeros(retries,length(rrange));
 sr = zeros(retries,length(rrange));
 %Y = DistanceTensorP();

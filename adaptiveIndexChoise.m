@@ -1,7 +1,7 @@
 function [I,J,K] = adaptiveIndexChoise(Y,r)
     [i,j,k] = size(Y);
-    J = [randi(j)];K=[randi(k)];
-    %J = [1];K=[3];
+    %J = [randi(j)];K=[randi(k)];
+    J = [1];K=[3];
     [~,maxi] = max(abs(Y(:,J(1),K(1))));
     I = [maxi];
     for p=2:r
