@@ -6,7 +6,6 @@
 %   dist: dtw-distance between a1 and a2
 function dist = dtwDistance(a1,a2,w)
     n = length(a1); m= length(a2);
-    m=n;
     if nargin < 3
         w = max(n,m);
     end

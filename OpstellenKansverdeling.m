@@ -9,7 +9,9 @@
 function p = OpstellenKansverdeling(D)
     [n,~] = size(D);
     is = randi(n);
+    %[minS,is] = min(sum(D(:,:),2).^2);
     rowMean = 1/n*sum(D(is,:).^2);
+    %rowMean = 1/n*minS;
     p = D(:,is).^2+rowMean;
     p = p./sum(p);
 end

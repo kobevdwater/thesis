@@ -4,7 +4,9 @@ function dis = prunedDTW(a1,a2,w)
     for i = 1:N
         Ub = Ub+(a1(i)-a2(i))^2;
     end
-
+    if nargin < 3
+        w = N;
+    end
     sc = 2;ec = 2;
     D = Inf*ones(N,N);
     D(1,1)= 0;

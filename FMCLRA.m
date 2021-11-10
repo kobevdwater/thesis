@@ -12,8 +12,8 @@
 %based on thesis of Mathias Pede.
 function U = FMCLRA(D,p,k,ep)
     [n,~] = size(D);
-    %s = round(10*k/eps);
-    s = round(3*k/ep);
+    s = round(10*k/ep);
+    %s = round(3*k/ep);
     I = datasample(1:n,s,'Weights',p,'Replace',false);
     S = D(:,I);
     scaling = s.*p(I);

@@ -1,5 +1,5 @@
-retries = 10;
-rrange = 1:50;
+retries = 1;
+rrange = 2:50;
 results = zeros(retries,length(rrange));
 sr = zeros(retries,length(rrange));
 %Y = DistanceTensorP();
@@ -9,7 +9,10 @@ for i=1:retries
     i
     for j=1:length(rrange)
         Y.resetSamplingRate();
-        Yh = CRMDFMWA1(Y,rrange(j),rrange(j),12);
+        YY = Y(:,:,:);
+        coresize = [rrange(j),rrange(j),rrange(j)];
+        [U,S ] = lmlra(YY,coresize);
+        Yh = lmlragen(U,S);
         Dh = Yh(:,:,1);
         results(i,j) = norm(D-Dh)/norm(D);
         sr(i,j)= Y.getSampleRate();

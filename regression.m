@@ -19,7 +19,7 @@ function V = regression(U,D,ep)
     weights = [];
     indices = [];
     Vx = V*U';
-    while length(indices) < round(3*k/ep)
+    while length(indices) < round(10*k/ep)
         fie = trace((u.*eye(k)-B)^-1)+trace((B-l.*eye(k))^-1);
         temp1 = (u*eye(k)-B)^-1*Vx;
         temp2 = (B-l*eye(k))^-1*Vx;
@@ -37,9 +37,12 @@ function V = regression(U,D,ep)
         B = B+s*vr*vr';
         u = u+gamma/(fie*(1-gamma));l = l+gamma/(fie*(1+gamma));
     end
-    Y = D(indices,:);
+    %indices = [1:n];
+    %weights = ones(1,n);
+    sqrt_Weights = sqrt(weights);
+    Y = D(indices,:).*sqrt_Weights';
     V = zeros(k,n);
-    Us = U(indices,:);
+    Us = U(indices,:).*sqrt_Weights';
     for i=1:n
         V(:,i) = Us\Y(:,i);
     end
