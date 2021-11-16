@@ -97,7 +97,7 @@ classdef DistanceTensorP < handle
             end
             newData = zeros(n,1);
             parfor i=1:n
-                dis = prunedDTW(toCalc(i).a1(1:200),toCalc(i).a2(1:200));
+                dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)));
                 newData(i) = dis;
             end
             for p=1:n
@@ -123,6 +123,7 @@ classdef DistanceTensorP < handle
                 sr = totalSum/(length(I)*length(J)*length(K));
             end
         end
+        
         function zr = resetSamplingRate(obj)
             obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3));
             zr = 0;
