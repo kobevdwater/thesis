@@ -12,24 +12,24 @@ function [I,J,K] = adaptiveIndexChoise(Y,r1,r2,r3)
         else
             [~,maxi] = max(abs(getresidual(Y,I,J,K,2,ip,kp)));
         end
-        if (length(J) < r)
+        if (~ismember(maxi,J))
             J = [J maxi];
         end
         jp = maxi;
         [~,maxi] = max(abs(getresidual(Y,I,J,K,3,ip,jp)));
-        if (length(K) < r)
+        if (~ismember(maxi,K))
             K = [K maxi];
         end
         kp = maxi;
         [~,maxi] = max(abs(getresidual(Y,I,J,K,1,jp,kp)));
-        if (length(I)< r)
+        if ( ~ismember(maxi,I))
             I = [I maxi];
         end
         ip = maxi;
     end
     %Can I do this less wastefull? If I use if statements, i get a lot of
     %repetition.
-    I = I(1:r1);
-    J = J(1:r2);
-    K = K(1:r3);
+    I = I(1:min(r1,length(I)));
+    J = J(1:min(r2,length(J)));
+    K = K(1:min(r3,length(K)));
 end
