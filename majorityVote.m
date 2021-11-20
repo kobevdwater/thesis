@@ -6,7 +6,7 @@
 %returns
 %   cluster: one cluster where each element is assigned to the majority
 %       vote of all the clusterings.
-function cluster = majorityVote(Clusters)
+function cluster = majorityVote(Clusters,weight)
     sz = size(Clusters);
     cluster = zeros(sz(2),1);
     k = max(Clusters, [], 'all'); %k = maximum value of Clusters
@@ -14,7 +14,7 @@ function cluster = majorityVote(Clusters)
         amount = zeros(k,1);
         for j=1:sz(1)
             elem = Clusters(j,i);
-            amount(elem) = amount(elem)+1;
+            amount(elem) = amount(elem)+weight(j);
         end
         [~,cluster(i)] = max(amount); %set cluster(i) to the max index of amount.
     end

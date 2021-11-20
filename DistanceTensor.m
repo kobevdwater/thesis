@@ -6,12 +6,15 @@ classdef DistanceTensor < handle
         Data
         Iset
         Slice
+        Accesed
     end
     methods
         
         function obj = DistanceTensor()
-            obj.Sz = [20,20,10];
+            obj.Sz = [100,100,75];
             obj.Data = NaN(obj.Sz(1),obj.Sz(2),obj.Sz(3));
+            obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3));
+
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:) = 0;
             end
@@ -73,7 +76,7 @@ classdef DistanceTensor < handle
                 for j=1:length(J)
                     for k=1:length(K)
                         if isnan(obj.Data(I(i),J(j),K(k)))
-                            dis = prunedDTW(obj.Iset(I(i)).data(K(k),:),obj.Iset(J(j)).data(K(k),:),1);
+                            dis = prunedDTW(normalize(obj.Iset(I(i)).data(K(k),1:300)),normalize(obj.Iset(J(j)).data(K(k),1:300)));
                             data(i,j,k) = dis;
                             obj.Data(I(i),J(j),K(k)) = dis;
                             obj.Data(J(j),I(i),K(k)) = dis;
@@ -90,12 +93,17 @@ classdef DistanceTensor < handle
         
         function sr = getSampleRate(obj,varargin)
             if isempty(varargin)
-                sr = sum(~isnan(obj.Data),'all')/(prod(obj.Sz));
+                sr = sum(obj.Accesed,'all')/(prod(obj.Sz));
             else
                 [I,J,K] = obj.parseIndices(varargin);
-                totalSum = sum(~isnan(obj.Data(I,J,K)),'all');
+                totalSum = sum(obj.Accesed(I,J,K),'all');
                 sr = totalSum/(length(I)*length(J)*length(K));
             end
+        end
+        
+        function zr = resetSamplingRate(obj)
+            obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3));
+            zr = 0;
         end
     end
 end
