@@ -8,7 +8,6 @@ resultMatrix = zeros(jr,45);
 resultWeighted = zeros(jr,45);
 Sim = venuFlatten(Yp);
 for j = 1:jr
-    j
     [U,S] = mlsvd(Yp,[10,10,10]);
 
     randomClusters = randi(4,1,100);

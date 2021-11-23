@@ -1,4 +1,4 @@
-function clusters = cluserOnTucker2(G,A1,k,r)
+function clusters = cluserOnCP(A1,k,r)
     M = A1';
     M = M./vecnorm(M);
     similarity = M'*M;
@@ -6,3 +6,4 @@ function clusters = cluserOnTucker2(G,A1,k,r)
     clusters = spectralClustering(similarity,r,k,'sim');
 
 end
+
