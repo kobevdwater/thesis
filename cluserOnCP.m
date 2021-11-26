@@ -6,4 +6,3 @@ function clusters = cluserOnCP(A1,k,r)
     clusters = spectralClustering(similarity,r,k,'sim');
 
 end
-
