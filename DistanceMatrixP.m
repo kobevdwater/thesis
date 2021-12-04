@@ -22,19 +22,20 @@ classdef DistanceMatrixP < handle
             obj.Iset(obj.Sz(1)).data = [];
         end
 
-        function sref = subsref(obj,s)
+        function varargout = subsref(obj,s)
             switch s(1).type
                 case '()'
-                    sref = obj.calcData(s.subs);
+                    [varargout{1:nargout}] = obj.calcData(s.subs);
                 case '.'
-                     sref = builtin('subsref',obj,s);
+                     [varargout{1:nargout}] = builtin('subsref',obj,s);
                 otherwise
                     error('Not a valid indexing expression (yet)')
             end
         end
 
-        function varargout = size(this,varargin)
-            [varargout{1:nargout}] = builtin('size',this.Data,varargin{:});
+        function varargout = size(obj,varargin)
+            [varargout{1:nargout}] = deal(obj.Sz(1)*obj.Sz(3),obj.Sz(2)*obj.Sz(4));
+            %[varargout{1:nargout}] = builtin('size',this.Data,varargin{:});
         end
 
         function [I,J,K,L] = parseIndices(obj,indices)
@@ -71,13 +72,13 @@ classdef DistanceMatrixP < handle
                 for j=1:length(J)
                     for k=1:length(K)
                         for l=1:length(L)
-                            if isnan(obj.Data(I(i),J(j),K(k)))
+                            if isnan(obj.Data(I(i),J(j),K(k),L(l)))
                                 n = n+1;
                                 toCalc(n).a1 = obj.Iset(I(i)).data(K(k),:);
                                 toCalc(n).a2 = obj.Iset(J(j)).data(L(l),:);
                                 toCalc(n).ijk = [i,j,k,l];
-                                obj.Data(J(j),I(i),K(k)) = -1;
-                            elseif obj.Data(I(i),J(j),K(k)) == -1
+                                obj.Data(J(j),I(i),L(l),K(k)) = -1;
+                            elseif obj.Data(I(i),J(j),K(k),L(l)) == -1
                                 m=m+1;
                                 toWrite(m).ijk = [i,j,k,l];
                             else
@@ -88,8 +89,8 @@ classdef DistanceMatrixP < handle
                 end
             end
             newData = zeros(n,1);
-            %parfor i=1:n
-            for i=1:n
+            parfor i=1:n
+            %for i=1:n
                 dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)));
                 newData(i) = dis;
             end

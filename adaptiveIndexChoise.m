@@ -1,8 +1,15 @@
+%ADAPTIVEINDEXCHOISE adaptively chose indiches for FSTD algorithm.
+% Indiches will be chosen based on the approximation error of the
+% previously chosen fibers. 
+%parameters:
+%   Y: Tensor to which FSTD is applied.
+%   r1,r2,r3: amount of fibers/indices chosen in the corresponding modes.
+%returns
+%   I,J,K: chosen indices.
 function [I,J,K] = adaptiveIndexChoise(Y,r1,r2,r3)
     r = max([r1 r2 r3]);
     [i,j,k] = size(Y);
     J = [randi(j)];K=[randi(k)];
-    %J = [1];K=[3];
     [~,maxi] = max(abs(Y(:,J(1),K(1))));
     I = [maxi];
     for p=2:r
