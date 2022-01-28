@@ -2,7 +2,6 @@ function M = colorDistanceMatrix(D,cl)
     [sz,~] = size(D);
     M = zeros(sz,sz,3);
     [I,J,K,L] = D.parseIndices({1:1000,1:1000});
-
     for x=1:sz
         for y=x:sz
             if (K(x)==L(y))

@@ -1,3 +1,16 @@
+%MACH_HOSVD: Create a low rank Tucker decomposition using the MACH HOSVD
+%method.
+%parameters:
+%   X: The tensor to decompose.
+%   r1,r2,r3: the rank of the decomposition in the first, second and third
+%   mode.
+%   p: probobility to keep an entry.
+%result:
+%   G: Core of the decomposition.
+%   A1,A2,A3: Factor matrices.
+%   sr: fraction of elements of X that are read.
+%Based om paper: MACH: Fast Randomized Tensor Decompositions.By
+%Tsourakakis.
 function [G,A1,A2,A3,sr] = MACH_HOSVD(X,r1,r2,r3,p)
     [I,J,K ] = size(X);
     R = (rand(I,J,K)<p);

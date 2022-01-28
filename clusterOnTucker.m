@@ -1,4 +1,4 @@
-%CLUSTERONTUCKER: make a clustering based on the TUCKER-2 decomposition of a tensor.
+%CLUSTERONTUCKER: Make a clustering based on the TUCKER-2 decomposition of a tensor.
 % Uses the slices of the TUCKER-2 decompsiton as feature vector for
 % spectral clustering.
 %parameters:
@@ -7,7 +7,7 @@
 %   k: Number of clusters.
 %   r: dimentions used for spectral clustering.
 %returns:
-%   clusters: The clustering of the given mode.
+%   clusters: The clustering of the first mode.
 function clusters = clusterOnTucker(G,A1,k,r)
     S2 = tmprod(G,A1,1);
     %split the frontal slices and vectorise and normalize them.
@@ -15,6 +15,7 @@ function clusters = clusterOnTucker(G,A1,k,r)
 
     M = M./vecnorm(M);
     similarity = M'*M;
+    similarity = max(similarity,0);
     %we can use this similarity matrix to cluster the sensors.
     clusters = spectralClustering(similarity,r,k,'sim');
     %low_dimM = tsne(M');

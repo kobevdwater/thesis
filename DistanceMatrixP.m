@@ -1,5 +1,6 @@
-%DISTANCETENSORP class representing a distance tensor. Using this class
-%   allows us to calculate values when they are needed.
+%DISTANCEMATRIXP class representing a distance matrix. Using this class
+%   allows us to calculate values when they are needed. Uses a parfor loop
+%   to speed up calculation. Requires parallel computing toolbox.
 classdef DistanceMatrixP < handle
     properties
         Sz
@@ -10,8 +11,10 @@ classdef DistanceMatrixP < handle
     end
     methods
         
+        %The matrix is internaly represented as a 4D Tensor with 
+        % size [a,a,b,b]. The output will be a matrix of size [a*b,a*b]
         function obj = DistanceMatrixP()
-            obj.Sz = [50,50,20,20];
+            obj.Sz = [180,180,20,20];
             obj.Data = NaN(obj.Sz(1),obj.Sz(2),obj.Sz(3),obj.Sz(4));
             obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3),obj.Sz(4));
             for i = 1:obj.Sz(1)
@@ -35,9 +38,13 @@ classdef DistanceMatrixP < handle
 
         function varargout = size(obj,varargin)
             [varargout{1:nargout}] = deal(obj.Sz(1)*obj.Sz(3),obj.Sz(2)*obj.Sz(4));
-            %[varargout{1:nargout}] = builtin('size',this.Data,varargin{:});
         end
 
+        %Transform 2d coordinates to 4d coordinates of internal representation.
+        % Given idices [a,b]
+        % Result will be [i,j,k,l]
+        %   where a = i*k and b = k*l
+        % also works with ranges.
         function [I,J,K,L] = parseIndices(obj,indices)
             IJ = {};
             for i = 1:length(indices)
@@ -55,6 +62,7 @@ classdef DistanceMatrixP < handle
         function data = calcData(obj,indices)
             [I,J,K,L] = obj.parseIndices(indices);
             obj.Accesed(I,J,K,L) = 1;
+            %load the needed data
             for i = [I J]
                 if isempty(obj.Iset(i).data)
                     item = sprintf('/skeleton_%d/block0_values',i);
@@ -68,6 +76,9 @@ classdef DistanceMatrixP < handle
             size(data)
             n = 0;
             m = 0;
+            %Find all indices that have to be calculated. If the data has
+            %been calculated before, it will be copied and not calculated
+            %again.
             for i=1:length(I)
                 for j=1:length(J)
                     for k=1:length(K)
@@ -88,12 +99,14 @@ classdef DistanceMatrixP < handle
                     end
                 end
             end
+            %Calculate the data that has to be calculated.
             newData = zeros(n,1);
             parfor i=1:n
-            %for i=1:n
                 dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)));
                 newData(i) = dis;
             end
+            %Place the newly calculated data in output structure and in the
+            %internal datastructure used to remember calculated data.
             for p=1:n
                 ijk = toCalc(p).ijk;
                 i=ijk(1);j=ijk(2);k=ijk(3);l=ijk(4);
@@ -101,6 +114,8 @@ classdef DistanceMatrixP < handle
                 obj.Data(I(i),J(j),K(k),L(l)) = newData(p);
                 obj.Data(J(j),I(i),L(l),K(k)) = newData(p);
             end
+
+            %Place the previously calculated data in the output structure.
             for p=1:m
                 ijk = toWrite(p).ijk;
                 i=ijk(1);j=ijk(2);k=ijk(3);l=ijk(4);
@@ -109,16 +124,20 @@ classdef DistanceMatrixP < handle
             data = tens2mat(data,[3,1],[4,2]);
         end
         
-        function sr = getSampleRate(obj,varargin)
-            if isempty(varargin)
+        %Check how many data elements are accessed.
+        % Only the indices given will be counted. If no indices are given,
+        % the whole matrix will be concidered.
+        function sr = getSampleRate(obj,indices)
+            if isempty(indices)
                 sr = sum(obj.Accesed,'all')/(prod(obj.Sz));
             else
-                [I,J,K,L] = obj.parseIndices(varargin);
+                [I,J,K,L] = obj.parseIndices(indices);
                 totalSum = sum(obj.Accesed(I,J,K,L),'all');
                 sr = totalSum/(length(I)*length(J)*length(K)*length(L));
             end
         end
         
+        %Set the sampling rate to zero. 
         function zr = resetSamplingRate(obj)
             obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3),obj.Sz(4));
             zr = 0;

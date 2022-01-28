@@ -1,4 +1,4 @@
-%CLUSTERTENSOR create clusters via spectral clustering for all distance 
+%CLUSTERTENSOR create individual clusters via spectral clustering for all distance 
 % matrices in a tensor.
 %parameters:
 %   T: stack of distance matrices via 3th mode. Di = T(:,:,i)
@@ -12,7 +12,5 @@ function Clusters = clusterTensor(T,dim,k)
     Clusters = zeros(sz(3),sz(1));
     for i =1:sz(3)
         Clusters(i,:) = spectralClustering(T(:,:,i),dim,k);
-    end
-
-    
+    end    
 end

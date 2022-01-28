@@ -7,8 +7,4 @@ function clusters = SSEWeightedClustering(Y,k,r)
         weights(i) = 1000/calculateSSE(clusters(i,:),Y(:,:,i));
     end
     clusters = majorityVote(clusters,weights);
-
-
-    
-
 end

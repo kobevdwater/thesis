@@ -35,9 +35,4 @@ function dis = prunedDTW(a1,a2,w)
         ec = ec_next;
     end
     dis = sqrt(D(N,N));
-
-
-
-
-
 end

@@ -48,7 +48,7 @@ classdef DistanceTensor < handle
         function [I,J,K] = parseIndices(obj,indices)
             IJK = {};
             for i = 1:length(indices)
-                if indices{1,i}==':'
+                if strcmp(indices{1,i},':')
                     IJK{i} = [1:obj.Sz(i)];
                 else
                     IJK{i} = indices{1,i};

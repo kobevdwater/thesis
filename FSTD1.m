@@ -1,7 +1,9 @@
-function Yh = FSTD1(Y,r)
+%This is the "correct" way to do FSTD, but it is more complex.
+function [U,Cn] = FSTD1(Y,r)
+%     warning("This function should not be used anymore. Please use FSTD instead.")
     [i,j,k] = size(Y);
-    [I,J,K] = adaptiveIndexChoise(Y,r);
-    I = randi(i,1,r);J=randi(j,1,r);K=randi(k,r,1,r);
+    [I,J,K] = adaptiveIndexChoise(Y,r,r,r);
+%     I = randi(i,1,r);J=randi(j,1,r);K=randi(k,r,1,r);
     
     W = Y(I,J,K);
     C1 = Y(:,J,K);C2 = Y(I,:,K);C3 = Y(I,J,:);
@@ -12,5 +14,4 @@ function Yh = FSTD1(Y,r)
     Wn = {pinv(W1),pinv(W2),pinv(W3)};
     U = lmlragen(Wn,W);
     Cn = {C1,C2,C3};
-    Yh = lmlragen(Cn,U);
 end

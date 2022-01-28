@@ -28,8 +28,4 @@ function [similarity,clusters,sensorClusters] = findingRelatedSensors(D,k)
 
     for i=1:size(D,3)
         sensorClusters{clusters(i)} = [sensorClusters{clusters(i)} AllSensors(i)];
-
-
-    
-
 end

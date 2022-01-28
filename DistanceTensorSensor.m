@@ -1,7 +1,6 @@
-%DISTANCETENSORP class representing a distance tensor. Using this class
-%   allows us to calculate values when they are needed. Uses parfor loop to
-%   speed up calculations. Requires parallel computing toolbox.
-classdef DistanceTensorP < handle
+%DISTANCETENSOR class representing a distance tensor. Using this class
+%   allows us to calculate values when they are needed.
+classdef DistanceTensorSensor < handle
     properties
         Sz
         Data
@@ -11,14 +10,15 @@ classdef DistanceTensorP < handle
     end
     methods
         
-        function obj = DistanceTensorP()
-            obj.Sz = [180,180,75];
+        function obj = DistanceTensorSensor()
+            obj.Sz = [75,75,180];
             obj.Data = NaN(obj.Sz(1),obj.Sz(2),obj.Sz(3));
             obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3));
+
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:) = 0;
             end
-            obj.Iset(obj.Sz(1)).data = [];
+            obj.Iset(obj.Sz(3)).data = [];
             obj.Slice = NaN;
         end
 
@@ -45,8 +45,6 @@ classdef DistanceTensorP < handle
             [varargout{1:nargout}] = builtin('size',this.Data,varargin{:});
         end
 
-        %Transform the indices given in to a form that can be used to
-        %calculate data.
         function [I,J,K] = parseIndices(obj,indices)
             IJK = {};
             for i = 1:length(indices)
@@ -68,11 +66,10 @@ classdef DistanceTensorP < handle
         function data = calcData(obj,indices)
             [I,J,K] = obj.parseIndices(indices);
             obj.Accesed(I,J,K) = 1;
-            %load the needed data
-            for i = [I J]
-                if isempty(obj.Iset(i).data)
-                    item = sprintf('/skeleton_%d/block0_values',i);
-                    obj.Iset(i).data = h5read('amie/amie-kinect-data.hdf',item);
+            for k = K
+                if isempty(obj.Iset(k).data)
+                    item = sprintf('/skeleton_%d/block0_values',k);
+                    obj.Iset(k).data = h5read('amie/amie-kinect-data.hdf',item);
                 end
             end
  
@@ -81,16 +78,13 @@ classdef DistanceTensorP < handle
             data = zeros(length(I),length(J),length(K));
             n = 0;
             m = 0;
-            %Find all indices that have to be calculated. If the data has
-            %been calculated before, it will be copied and not calculated
-            %again.
             for i=1:length(I)
                 for j=1:length(J)
                     for k=1:length(K)
                         if isnan(obj.Data(I(i),J(j),K(k)))
                             n = n+1;
-                            toCalc(n).a1 = obj.Iset(I(i)).data(K(k),:);
-                            toCalc(n).a2 = obj.Iset(J(j)).data(K(k),:);
+                            toCalc(n).a1 = obj.Iset(K(k)).data(I(i),:);
+                            toCalc(n).a2 = obj.Iset(K(k)).data(J(j),:);
                             toCalc(n).ijk = [i,j,k];
                             obj.Data(J(j),I(i),K(k)) = -1;
                         elseif obj.Data(I(i),J(j),K(k)) == -1
@@ -102,14 +96,11 @@ classdef DistanceTensorP < handle
                     end
                 end
             end
-            %Calculate the data that has to be calculated.
             newData = zeros(n,1);
             parfor i=1:n
                 dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)));
                 newData(i) = dis;
             end
-            %Place the newly calculated data in output structure and in the
-            %internal datastructure used to remember calculated data.
             for p=1:n
                 ijk = toCalc(p).ijk;
                 i=ijk(1);j=ijk(2);k=ijk(3);
@@ -117,7 +108,6 @@ classdef DistanceTensorP < handle
                 obj.Data(I(i),J(j),K(k)) = newData(p);
                 obj.Data(J(j),I(i),K(k)) = newData(p);
             end
-            %Place the previously calculated data in the output structure.
             for p=1:m
                 ijk = toWrite(p).ijk;
                 i=ijk(1);j=ijk(2);k=ijk(3);
@@ -125,9 +115,6 @@ classdef DistanceTensorP < handle
             end
         end
         
-        %Check how many data elements are accessed.
-        % Only the indices given will be counted. If no indices are given,
-        % the whole matrix will be concidered.
         function sr = getSampleRate(obj,varargin)
             if isempty(varargin)
                 sr = sum(obj.Accesed,'all')/(prod(obj.Sz));

@@ -18,6 +18,4 @@ function cluster = majorityVote(Clusters,weight)
         end
         [~,cluster(i)] = max(amount); %set cluster(i) to the max index of amount.
     end
-
-
 end

@@ -10,7 +10,6 @@
 %Based on paper: Sample-Optimal Low-Rank Approximation of Distance
 %   Matrices. P. Indyk.
 %Implementation based on work of Mathias Pede.
-
 function Dh = SOLRADM(D, k, ep)
     p = OpstellenKansverdeling(D);
     U = FMCLRA(D,p,k,ep);

@@ -7,16 +7,21 @@
 %   relative norm of the corresponding fiber of D.
 %   Each slice is taken to have the same norm.
 % based on thesis Mathias Pede.
-function p = OpstellenKansverdeling(D)
-    
-    [n,~,c] = size(D);
+function p = OpstellenKansverdeling(D,am)
+    if nargin < 2
+        am = 10;
+    end
+    [n,k,c] = size(D);
     p = zeros(n,c);
     for i=1:c
-        is = randi(n);
-        %[minS,is] = min(sum(D(:,:),2).^2);
+        I = randi(n,am,1);
+        rows = D(:,I);
+        norms = sum(rows.^2);
+        [~,idx] = max(norms);
+        is = I(idx);
+        js = randi(k);
         rowMean = 1/n*sum(D(is,:,i).^2);
-        %rowMean = 1/n*minS;
-        pr = D(:,is,i).^2+rowMean;
+        pr = D(:,js,i).^2+D(is,js,i).^2+rowMean;
         p(:,i) = pr./(sum(pr)*c);
     end
-end
+end 

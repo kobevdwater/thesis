@@ -23,6 +23,4 @@ function dist = dtwDistance(a1,a2,w)
     %sqrt to bring distances closer together. Can I do that?
     %- already not a distance, so i guess so.
     dist = sqrt(DTW(i+1,j+1));
-
-
 end

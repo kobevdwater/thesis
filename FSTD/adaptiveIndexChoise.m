@@ -8,7 +8,7 @@
 %   I,J,K: chosen indices.
 function [I,J,K] = adaptiveIndexChoise(Y,r1,r2,r3)
     r = max([r1 r2 r3]);
-    [i,j,k] = size(Y);
+    [~,j,k] = size(Y);
     J = [randi(j)];K=[randi(k)];
     [~,maxi] = max(abs(Y(:,J(1),K(1))));
     I = [maxi];
@@ -19,17 +19,17 @@ function [I,J,K] = adaptiveIndexChoise(Y,r1,r2,r3)
         else
             [~,maxi] = max(abs(getresidual(Y,I,J,K,2,ip,kp)));
         end
-        if (~ismember(maxi,J))
+        if (p<r2)
             J = [J maxi];
         end
         jp = maxi;
         [~,maxi] = max(abs(getresidual(Y,I,J,K,3,ip,jp)));
-        if (~ismember(maxi,K))
+        if (p<r3)
             K = [K maxi];
         end
         kp = maxi;
         [~,maxi] = max(abs(getresidual(Y,I,J,K,1,jp,kp)));
-        if ( ~ismember(maxi,I))
+        if (p<r1)
             I = [I maxi];
         end
         ip = maxi;

@@ -46,7 +46,6 @@ function V = regression(U,D,ep)
     for i=1:n
         V(:,i) = Us\Y(:,i);
     end
-
 end
 
 

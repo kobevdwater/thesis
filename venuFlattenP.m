@@ -1,6 +1,6 @@
-% VENUFLATTEN: Create a similarity matrix based on a tensor using sampling.
+% VENUFLATTEN: Create a similarity matrix of the third mode based on a tensor using sampling
 %parameters:
-%   Y: Tensor to create similarity matrix from
+%   Y: Tensor to create similarity matrix from in the third mode.
 %   r: fibers to use in the sampling.
 %   am: amount of retries for OpstellenKnasverdeling. Default: 10
 %   abs: chose the way the sampled fivers are chosen. Default: 3
@@ -15,7 +15,7 @@
 %segmentation by Govindu.
 %
 % See also OPSTELLENKANSVERDELING
-function [simMat,DisMat] = venuFlatten(Y,r,am,abc)
+function [simMat,DisMat] = venuFlattenP(Y,r,am,abc)
     if nargin < 3
         am = 10;
     end
@@ -24,24 +24,24 @@ function [simMat,DisMat] = venuFlatten(Y,r,am,abc)
     end
     [i,j,k] = size(Y);
     p = OpstellenKansverdeling(Y,am);
+    p = sum(p,2);
+    p = kron(p,p);
+
     if nargin >= 2
         if abc==1
             [~,I] = maxk(p(:),r);
         elseif abc == 2
-            I = round(linspace(1,j*k,r));
-        else
-            I = datasample(1:j*k,r,'Weights',p(:)','Replace',false);
-        end
-
+            I = round(linspace(1,i*j,r));
+        elseOPSTELLENKANSVERDELING
+            I = datasample(1:i*j,r,'Weights',p(:)','Replace',false);
+        endOPSTELLENKANSVERDELING
     else
         I = ':';
     end
-    M = tens2mat(Y,1);
+    M = tens2mat(Y,3);
     M = M(:,I);
     M1t = M'./vecnorm(M');
     D = pdist(M1t','euclidean');
     DisMat = squareform(D);
     simMat = M*M';
-%     M = (M'./vecnorm(M'))';
-%     simMat = M*M';
 end
