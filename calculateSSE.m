@@ -5,7 +5,7 @@
 %returns: 
 %   sse: The sse of the clustering.
 function sse = calculateSSE(clustering,D)
-    
+
     results = zeros(1,length(clustering));
     for i=1:length(clustering)
         for j = (i+1):length(clustering)

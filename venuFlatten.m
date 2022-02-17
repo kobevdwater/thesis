@@ -23,10 +23,10 @@ function [simMat,DisMat] = venuFlatten(Y,r,am,abc)
         abc = 3;
     end
     [i,j,k] = size(Y);
-    p = OpstellenKansverdeling(Y,am);
+    p = OpstellenKansverdeling(Y,'am',am);
     if nargin >= 2
         if abc==1
-            [~,I] = maxk(p(:),r);
+            I = randi(j*k,r,1);
         elseif abc == 2
             I = round(linspace(1,j*k,r));
         else
@@ -41,7 +41,7 @@ function [simMat,DisMat] = venuFlatten(Y,r,am,abc)
     M1t = M'./vecnorm(M');
     D = pdist(M1t','euclidean');
     DisMat = squareform(D);
-    simMat = M*M';
-%     M = (M'./vecnorm(M'))';
 %     simMat = M*M';
+%     M = (M'./vecnorm(M'))';
+    simMat = M1t'*M1t
 end

@@ -11,7 +11,6 @@
 %   in a cluster.
 function [precission,recall] = BCubed(found,expected)
     cl = {};
-
     for i=1:max(found)
         cl{i} = [];
     end

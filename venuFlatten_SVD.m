@@ -1,6 +1,6 @@
-% VENUFLATTEN: Create a similarity matrix of the third mode based on a tensor using sampling
+% VENUFLATTEN: Create a similarity matrix based on a tensor using sampling.
 %parameters:
-%   Y: Tensor to create similarity matrix from in the third mode.
+%   Y: Tensor to create similarity matrix from
 %   r: fibers to use in the sampling.
 %   am: amount of retries for OpstellenKnasverdeling. Default: 10
 %   abs: chose the way the sampled fivers are chosen. Default: 3
@@ -15,35 +15,39 @@
 %segmentation by Govindu.
 %
 % See also OPSTELLENKANSVERDELING
-function [simMat,DisMat] = venuFlattenP(Y,r,am,abc)
-    if nargin < 3
-        am = 10;
+
+% This function is only used for testing purposes.
+function [simMat,DisMat] = venuFlatten_SVD(Y,r,options)
+    arguments
+        Y
+        r (1,1) {mustBeNumeric} = -1
+        options.am (1,1) {mustBeNumeric} = 10
+        options.abc (1,1) {mustBeNumeric} = 3
     end
-    if nargin < 4
-        abc = 3;
-    end
+    am = options.am;
+    abc = options.abc;
     [i,j,k] = size(Y);
-    %probability distribution to sample a fiber. Based on the norm of the
-    %two fibers running trough the fiber.
     p = OpstellenKansverdeling(Y,'am',am);
-    p = sum(p,2);
-    p = kron(p,p);
-    r = min(r,i*j);
-    if nargin >= 2
+    
+    if r > 0
         if abc==1
-            [~,I] = maxk(p(:),r);
+            I = randi(j*k,r,1);
         elseif abc == 2
-            I = round(linspace(1,i*j,r));
+            I = round(linspace(1,j*k,r));
         else
-            I = datasample(1:i*j,r,'Weights',p(:)','Replace',false);
+            I = datasample(1:j*k,r,'Weights',p(:)','Replace',false);
         end
+
     else
         I = ':';
     end
-    M = tens2mat(Y,3);
+    M = tens2mat(Y,1);
     M = M(:,I);
-    M1t = M'./vecnorm(M');
-    D = pdist(M1t','euclidean');
+    [A,~,~] = svds(M,50);
+    A1t = A'./vecnorm(A');
+    D = pdist(A1t','euclidean');
     DisMat = squareform(D);
-    simMat = M*M';
+    simMat = max(0,A1t'*A1t)
+%     M = (M'./vecnorm(M'))';
+%     simMat = M*M';
 end

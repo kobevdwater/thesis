@@ -5,11 +5,11 @@
 %   Where n=#persons and m=#sensors
 initialize;
 k=5;
-am = 80;
+am = 180;
 r = 5;
 retries = 15;
-%methods = ["Matrix","Venu","FSTD1","ParCube1","MACH1","MACH2","Random"];
-methods = ["Matrix","Venu"];
+methods = ["Matrix","Venu","FSTD1","ParCube1","MACH1","MACH2","Random"];
+%methods = ["Matrix","Venu","XYZ"];
 methodsP = ["VenuP"];
 sinterval = [0.03,0.05,0.1,0.2,0.33,0.5];
 result = zeros(length(sinterval),length(methods),retries);

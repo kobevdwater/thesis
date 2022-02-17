@@ -6,7 +6,6 @@ D = Y(:,:,1);
 for i=1:retries
     
     for j=1:length(prange)
-        i*length(prange)+j
         Y.resetSamplingRate();
         [G,A1,A2,A3,srj] = MACH_HOSVD(Y,15*i,15*i,15*i,prange(j));
         U = {A1,A2,A3};

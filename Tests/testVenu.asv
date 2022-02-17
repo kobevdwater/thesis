@@ -1,24 +1,16 @@
-
+%Testing different sample mechanisms for venu. 
 k=3;
 am = 75;
 r = 5;
 retries = 15;
-sinterval = logspace(-3,-0.6,15);
-result = zeros(length(sinterval),6,retries);
-venuInterval = floor(sinterval*size(Yn,2)*size(Yn,3));
-exerciseClusters = info(2,1:180);
-for j=1:am
-            D= Yn(:,:,j);
-            nrm = norm(D);
-            result(:,5,:) = result(:,5,:) + calculateSSE(exerciseClusters,D)/nrm; 
-end
-
-
-
+methods = ["ex","Venu","VenuHi","VenuSp"];
+sinterval = logspace(-3,-0.6,10);
+result = zeros(length(sinterval),length(methods),retries);
 
 for si = 1:length(sinterval)
     si
     for i=1:retries
+        for m=1:
         RandomClusters = randi(k,1,size(Yn,1));
         [simVenurand] = venuFlatten(Yn,venuInterval(si),10,1);
         [simVenusp,simVenuspnr] = venuFlatten(Yn,venuInterval(si),10,2);

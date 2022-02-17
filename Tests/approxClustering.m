@@ -6,10 +6,10 @@ am = 75;
 r = 5;
 retries = 10;
 %methods = ["Matrix","ex","Venu","FSTD1","ParCube1","MACH1","Random"];
-methods = ["Matrix","ex","Venu","FSTD1","FSTD11"];
+methods = ["Matrix","ex","Venu"];
 methodsP = ["VenuP"];
+sinterval = logspace(-2,-0.1,5);
 %sinterval = [0.02,0.05,0.1,0.2,0.33];
-sinterval = [0.02,0.03,0.05,0.1];
 result = zeros(length(sinterval),length(methods),retries);
 resultP = zeros(length(sinterval),length(methodsP),retries);
 exerciseClusters = info(2,1:180);
@@ -26,6 +26,7 @@ for si = 1:length(sinterval)
     si
     for i=1:retries
         for m=3:length(methods)
+            methods(m)
             Clusters = getApproxClusters(methods(m),sinterval(si),Yn,k);
             for j=1:am
                 D = Yn(:,:,j);

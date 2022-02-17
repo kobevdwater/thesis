@@ -7,15 +7,21 @@
 %   relative norm of the corresponding fiber of D.
 %   Each slice is taken to have the same norm.
 % based on thesis Mathias Pede.
-function p = OpstellenKansverdeling(D,am)
-    if nargin < 2
-        am = 10;
+function p = OpstellenKansverdeling(D,options)
+    arguments
+        D
+        options.am (1,1) {mustBeNumeric} = 10
+        options.slice (1,1) {mustBeNumeric} = 0
     end
     [n,k,c] = size(D);
+    if options.slice
+        c=1;
+    end
+    am = options.am;
     p = zeros(n,c);
     for i=1:c
         I = randi(n,am,1);
-        rows = D(:,I);
+        rows = D(:,I');
         norms = sum(rows.^2);
         [~,idx] = max(norms);
         is = I(idx);
