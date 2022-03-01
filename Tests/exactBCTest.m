@@ -1,17 +1,18 @@
+
 initialize;
 clusterFeatures = 2; %1: person; 2: exercise; 3: execution type
 ks = [length(unique(info(1,:))),length(unique(info(2,:))),length(unique(info(3,:)))];
 k=ks(clusterFeatures); %amount of features
 expected = info(clusterFeatures,1:180); %expected clusters
 am = 75; %dimention of the third mode.
-retries = 5; %amount of times we repeat the test. Result will be averaged over these tests.
+retries = 1; %amount of times we repeat the test. Result will be averaged over these tests.
 jr = 5;
-TuckerMethods = ["Tucker1","Tucker2","Tucker3"];
+% TuckerMethods = ["Tucker1","Tucker2","Tucker3"];
 TuckerMethods = ["Tucker1"];
-CPMethods = ["CP1","CP2"];
+% CPMethods = ["CP1","CP2"];
 CPMethods = ["CP1"];
-OtherMethods = ["Weighted","Random","Venu"];
-OtherMethods = ["Venu","Random"];
+%OtherMethods = ["Weighted","Random","Venu"];
+OtherMethods = ["Venu","Random","SFC"];
 TuckerResults = zeros(2,jr,length(TuckerMethods),retries);
 CPResults = zeros(2,jr,length(CPMethods),retries);
 OtherResults = zeros(2,jr,length(OtherMethods),retries);

@@ -9,7 +9,7 @@ function dist = dtwDistance(a1,a2,w)
     if nargin < 3
         w = max(n,m);
     end
-    w = max(w,abs(n-m));
+    %w = max(w,abs(n-m));
     DTW = Inf*ones(n+1,m+1);
     DTW(1,1) = 0;
 
@@ -20,7 +20,5 @@ function dist = dtwDistance(a1,a2,w)
             DTW(i+1,j+1) = cost + min([DTW(i,j+1),DTW(i+1,j),DTW(i,j)]);
         end
     end
-    %sqrt to bring distances closer together. Can I do that?
-    %- already not a distance, so i guess so.
-    dist = sqrt(DTW(i+1,j+1));
+    dist = DTW(i+1,j+1);
 end

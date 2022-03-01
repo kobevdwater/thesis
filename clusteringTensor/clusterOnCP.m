@@ -12,6 +12,6 @@ function clusters = clusterOnCP(A1,k,r)
     similarity = M'*M;
     similarity = max(similarity,0);
     %we can use this similarity matrix to cluster the sensors.
-    clusters = spectralClustering(similarity,r,k,'sim');
+    clusters = spectralClustering(similarity,k);
 
 end

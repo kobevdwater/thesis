@@ -45,5 +45,5 @@ function [simMat,DisMat] = venuFlattenP(Y,r,am,abc)
     M1t = M'./vecnorm(M');
     D = pdist(M1t','euclidean');
     DisMat = squareform(D);
-    simMat = M*M';
+    simMat = M1t'*M1t;
 end

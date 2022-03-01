@@ -1,21 +1,57 @@
 %PARCUBE: Create a low rank CP decomposition using the ParCube algorithm.
 %parameters: 
 %   X: the tensor to decompose.
-%   dim: the amount of dimentions used in the CP decomposition.
-%   sr: sampling rate: the fraction of elements used in each mode in the
+%   options.intact: keep the first mode intact. Makes samplerate of the
+%       first mode 1.
+%   options.distance: true if the tensor X is a distance tensor.
+%       see: BiasedSample.
+%   options.sr: sampling rate: the fraction of elements used in each mode in the
 %       approximation.
+%   options.k: the dimention of the decomposition.
 %returns:
 %   U = {Ah,Bh,Ch}: approximation of the CP decomposition of X.
 % based on paper: ParCube: Sparse Parallelizable Tensor Decompositions.
 %   Papalexakis.
-function U = ParCube(X,dim,sr)
-    [Si,Sj,Sk] = size(X);
-    [Xsmal,I,J,K] = BiasedSample(X,sr);
-    Us = cpd(Xsmal,dim);
-    Ah = zeros(Si,dim);Bh = zeros(Sj,dim);Ch = zeros(Sk,dim);
-    Ah(I,:) = Us{1,1}; Bh(J,:) = Us{1,2}; Ch(K,:) = Us{1,3};
-    U = {Ah,Bh,Ch};
+function U = ParCube(X,sr,options)
+    arguments
+        X
+        sr (1,1) {mustBeNumeric} = 1
+        options.intact (1,1) logical = true
+        options.distance (1,1) logical = true
+        options.k (1,1) {mustBeNumeric} = 10
+    end
+    sz = size(X);
+    [Xs,IJK,originalsz] = BiasedSampleX(X,sr,options.intact, options.distance);
+    Xs = squeeze(Xs);
+    dim = options.k;
+    Us = cpd(Xs,dim);
+    j=1;
+    U = {};
+    for i=1:length(originalsz)
+        if originalsz(i) == 1
+            M = zeros(sz(i),dim);
+            M(IJK{1,i},:) = 1;
+            U{1,i} = M;
+        else
+            M = zeros(sz(i),dim);
+            M(IJK{1,i},:) = Us{1,j};
+            U{1,i} = M;
+            j = j+1;
+        end
+    end
 end
+
+%     Ah = zeros(Si,dim);Bh = zeros(Sj,dim);Ch = zeros(Sk,dim);
+%     Ah(I,:) = Us{1,1}; Bh(J,:) = Us{1,2};
+%     
+%     % cpd removes the third mode when its dimention is 1. This is added
+%     % back in.
+%     if (max(size(Us)) < 3)
+%         Ch(K,:) = 1;
+%     else
+%         Ch(K,:) = Us{1,3};
+%     end
+%     U = {Ah,Bh,Ch};
 
 
     

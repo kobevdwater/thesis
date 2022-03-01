@@ -8,15 +8,14 @@
 %   r: dimentions used for spectral clustering.
 %returns:
 %   clusters: The clustering of the first mode.
-function clusters = clusterOnTucker(G,A1,k,r)
+function clusters = clusterOnTucker(G,A1,k)
     S2 = tmprod(G,A1,1);
+    ln = length(size(S2));
     %split the frontal slices and vectorise and normalize them.
-    M = tens2mat(S2,[2,3],1);
+    M = tens2mat(S2,2:ln,1);
 
     M = M./vecnorm(M);
     similarity = M'*M;
     similarity = max(similarity,0);
     %we can use this similarity matrix to cluster the sensors.
-    clusters = spectralClustering(similarity,r,k,'sim');
-    %low_dimM = tsne(M');
-    %gscatter(low_dimM(:,1),low_dimM(:,2),clusters)
+    clusters = spectralClustering(similarity,k);

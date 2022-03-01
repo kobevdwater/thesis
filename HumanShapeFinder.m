@@ -1,4 +1,5 @@
-%Finding the points of the limbs of the human on the picture. 
+%Finding the points of the limbs of the human on the picture. Result is
+%used to visualize the clustered sensors.
 d1 = imread('data/man-shape.png');
 lims = ["Ankle","Elbow","Foot","Hand","HandTip","Head","Hip","Knee","Neck","Shoulder","SpineBase","SpineMid","SpineShoulder","Thumb","Wrist"];
 axis ij;
@@ -36,11 +37,14 @@ for i=1:length(LimPositions)
     plot(LimPositions(1,i),LimPositions(2,i), 'r+', 'MarkerSize', 7, 'LineWidth', 2);
 end
 hold off;
-
+SingleLimbPositions = zeros(2,25);
+j=1;
 for i=1:length(LimPositions)
     str = deblank(AllSensors(i));
     if (endsWith(str,"X"))
+        SingleLimbPositions(:,j) = LimPositions(:,i);
         LimPositions(1,i) = LimPositions(1,i)-20;
+        j = j+1;
     elseif (endsWith(str,"Y"))
         LimPositions(1,i) = LimPositions(1,i)+20;
     elseif (endsWith(str,"Z"))
@@ -50,6 +54,9 @@ end
 hold on;
 for i=1:length(LimPositions)
     plot(LimPositions(1,i),LimPositions(2,i), 'g.', 'MarkerSize', 7, 'LineWidth', 2);
+end
+for j=1:length(SingleLimbPositions)
+    plot(SingleLimbPositions(1,j),SingleLimbPositions(2,j),'r*');
 end
 hold off;
 

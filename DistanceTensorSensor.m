@@ -98,7 +98,7 @@ classdef DistanceTensorSensor < handle
             end
             newData = zeros(n,1);
             parfor i=1:n
-                dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)));
+                dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)),25);
                 newData(i) = dis;
             end
             for p=1:n

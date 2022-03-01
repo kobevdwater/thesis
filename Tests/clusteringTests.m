@@ -1,31 +1,48 @@
-%This needs some love...
+%Testing different clustering methods and compairing the SSE.
+%parameters:
+%   k: amount of clusters.
+%   retries: the total number each test will be executed. Result will be
+%       mean over the retries.
+%   TuckerMethods: the methods to test using the Yn tensor based on the
+%       Tucker decomposition.
+%   CPMethods: the methods to test using the Yn tensor based on the
+%       CP decomposition.
+%   OtherMethods: the methods to test using the Yn tensor that are not
+%       based on a decomposition.
+%   jrange: the different decomposition ranks to test.
+%result:
+%   Shows the total SSE over all slices from the cluster calculated using
+%   the different methods in function of the rank of the decomposition.
 initialize;
-jr = 4;
 k=3;
-am = 75;
-retries = 10;
+retries = 1;
+jrange = 5:5:50;
 
-% TuckerMethods = ["Tucker1","Tucker2","Tucker3"];
-TuckerMethods = ["Tucker1"];
+TuckerMethods = ["Tucker1","Tucker2","Tucker3"];
+% TuckerMethods = ["Tucker1"];
+% TuckerMethods = [];
 CPMethods = ["CP1","CP2"];
-CPMethods = ["CP1"];
-OtherMethods = ["Ex","Weighted","Random","Venu"];
-OtherMethods = ["Ex","Venu","Random"];
-TuckerResults = zeros(jr,length(TuckerMethods),retries);
-CPResults = zeros(jr,length(CPMethods),retries);
-OtherResults = zeros(jr,length(OtherMethods),retries);
+% CPMethods = ["CP1"];
+% CPMethods = [];
+% OtherMethods = ["Ex","Random","Venu","Weighted"];
+OtherMethods = ["Ex","Random","Weighted","BestMatrix","SFC","Venu"];
+am = size(Yn,3);
+TuckerResults = zeros(length(jrange),length(TuckerMethods),retries);
+CPResults = zeros(length(jrange),length(CPMethods),retries);
+OtherResults = zeros(length(jrange),length(OtherMethods),retries);
 exerciseClusters = info(2,1:180);
 for j=1:am
     D= Yn(:,:,j);
-            nrm = norm(D);
-            OtherResults(:,1,:) = OtherResults(:,1,:) + calculateSSE(exerciseClusters,D)/nrm;
+    nrm = norm(D);
+    OtherResults(:,1,:) = OtherResults(:,1,:) + calculateSSE(exerciseClusters,D)/nrm;
 end
-for j = 1:jr
-    [U,G] = mlsvd(Yn,[10+j,10+j,10+j]);
-    Ucp = cpd(Yn,10+j);
+for j = 1:length(jrange)
+    j
+    R = jrange(j);
+    [U,G] = mlsvd(Yn,[R,R,R]);
+    Ucp = cpd(Yn,R);
 
     for ret=1:retries
-        ret
         for m=1:length(TuckerMethods)
             Clusters = getTuckerClusters(TuckerMethods(m),G,U,k);
             for i=1:am
@@ -45,7 +62,7 @@ for j = 1:jr
         for m= 2:length(OtherMethods)
             Clusters = getOtherClusters(OtherMethods(m),Yn,k);
             for i=1:am
-                D = Yn(:,:,i);
+                D = Xn(:,:,i);
                 nrm = norm(D);
                 OtherResults(j,m,ret) = OtherResults(j,m,ret)+calculateSSE(Clusters,D)/nrm;
             end
@@ -55,11 +72,7 @@ end
 meanTucker = sum(TuckerResults,3)./retries;
 meanCP = sum(CPResults,3)./retries;
 meanOther = sum(OtherResults,3)./retries;
-hold on;
-plot(meanTucker);
-plot(meanCP);
-plot(meanOther);
-legend([TuckerMethods,CPMethods,OtherMethods]);
+figure('Name',"Tucker"); hold on; plot(jrange,meanOther(:,1:2)); plot(jrange,meanTucker); legend(["Ex","Random",TuckerMethods]);
+figure('Name',"CP"); hold on;  plot(jrange,meanOther(:,1:2)); plot(jrange,meanCP); legend(["Ex","Random",CPMethods]);
+figure('Name',"Other"); hold on; plot(jrange,meanOther); legend(OtherMethods);
 hold off;
-
-

@@ -1,6 +1,5 @@
-
-function colorClusters(cl,AllSensors,SensorPositions)
-    lnspecs = ["r.","g.",'b.','c.','m.','y.'];
+function colorClusters(cl,SensorPositions)
+    lnspecs = ["r+","g+",'b+','c+','m+','y+',"r*","g*",'b*','c*','m*','y*'];
     image = imread("./data/man-shape.png");
     imshow(image);
     hold on;

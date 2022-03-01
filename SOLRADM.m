@@ -3,15 +3,15 @@
 %parameters: 
 %   D: the distance matrix to be approximated.
 %   k: rank of the approximation.
-%   ep: parameter specifying how accurate the approximation has to be.
-%       Lower values will result in a higher sampling-rate of D.
+%   r: Specifies the amount of rows and cols sampled. Total amount of rows
+%   and colls sampled will be 2r.
 %retruns: 
 %   Dh: approximation of the matrix D.
 %Based on paper: Sample-Optimal Low-Rank Approximation of Distance
 %   Matrices. P. Indyk.
 %Implementation based on work of Mathias Pede.
-function Dh = SOLRADM(D, k, ep)
+function Dh = SOLRADM(D, k, r)
     p = OpstellenKansverdeling(D,slice=1);
-    U = FMCLRA(D,p,k,ep);
-    V = regression(U,D,ep);
+    U = FMCLRA(D,p,k,r);
+    V = regression(U,D,r);
     Dh = U*V;

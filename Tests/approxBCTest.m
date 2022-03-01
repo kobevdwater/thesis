@@ -7,13 +7,12 @@ clusterFeatures = 2; %1: person; 2: exercise; 3: execution type
 ks = [length(unique(info(1,:))),length(unique(info(2,:))),length(unique(info(3,:)))];
 k=ks(clusterFeatures); %amount of features
 expected = info(clusterFeatures,1:180); %expected clusters
-am = 75; %dimention of the third mode.
-retries = 15; %amount of times we repeat the test. Result will be averaged over these tests.
-%methods = ["Venu","FSTD1","ParCube1","MACH1","MACH2","Random"];
-methods = ["Venu"];
-methodsP = ["VenuP"];
-%sinterval = [0.02,0.05,0.1,0.2,0.33,0.5]; %sampling rates used.
-sinterval = [0.02,0.05,0.1];
+retries = 1; %amount of times we repeat the test. Result will be averaged over these tests.
+methods = ["Venu","FSTD1","ParCube1","MACH1","MACH2","Random"];
+% methods = ["Venu","SOLSFC"];
+methodsP = ["VenuP","MACHP1"];
+sinterval = [0.02,0.05,0.1,0.2,0.33,0.5]; %sampling rates used.
+%sinterval = [0.02,0.05,0.1];
 result = zeros(2,length(sinterval),length(methods),retries);
 resultP = zeros(2,length(sinterval),length(methodsP),retries);
 
@@ -36,8 +35,7 @@ for si = 1:length(sinterval)
 end
 
 sresult = sum(result,4)./retries;
-sresultP = sum(result,4)./retries;
-figure('Name','Precision');plot(sinterval,squeeze(sresult(1,:,:)));legend(methods)
-figure('Name','PrecisionP');plot(sinterval,squeeze(sresultP(1,:,:)));legend(methodsP)
+sresultP = sum(resultP,4)./retries;
+figure('Name','Precision');hold on; plot(sinterval,squeeze(sresult(1,:,:)));plot(sinterval,squeeze(sresultP(1,:,:)));legend([methods,methodsP]);
 
-figure  ('Name','Recall');plot(sinterval,squeeze(sresult(2,:,:)));legend(methods)
+figure  ('Name','Recall');hold on; plot(sinterval,squeeze(sresult(2,:,:)));plot(sinterval,squeeze(sresultP(2,:,:)));legend([methods,methodsP]);

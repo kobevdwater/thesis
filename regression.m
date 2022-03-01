@@ -3,13 +3,13 @@
 %parameters:
 %   U: left factors of a decomposition of D.
 %   D: matrix to be decomposed by V and U.
-%   ep: parameter specifying how accurate the approximation has to be.
-%       Lower values will result in a higher sampling-rate of D.
+%   r: specifies amount of rows sampled.
 %returns:
 %   V: matrix that approximates the solution of argmin(norm(D-V*U))
 % based on paper: Active Regression via Linear-Sample Sparsification. Chen.
 %Implementation based on work of Mathias Pede.
-function V = regression(U,D,ep)
+function V = regression(U,D,r)
+    ep = 2;
     [n,k] = size(U);
     p = ones(1,n)./n;
     V = orth(U');
@@ -19,7 +19,7 @@ function V = regression(U,D,ep)
     weights = [];
     indices = [];
     Vx = V*U';
-    while length(indices) < round(10*k/ep)
+    for i=1:r
         fie = trace((u.*eye(k)-B)^-1)+trace((B-l.*eye(k))^-1);
         temp1 = (u*eye(k)-B)^-1*Vx;
         temp2 = (B-l*eye(k))^-1*Vx;

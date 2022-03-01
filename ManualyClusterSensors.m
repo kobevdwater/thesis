@@ -6,8 +6,8 @@ index = 1;
 for i=1:length(AllSensors)
     if (contains(AllSensors(i),"Left"))
         symetryClusters(i) = index;
-        right = deblank(replace(AllSensors(i),"Left","Right"))
-        idx = find(contains(AllSensors, right))
+        right = deblank(replace(AllSensors(i),"Left","Right"));
+        idx = find(contains(AllSensors, right));
         symetryClusters(idx) = index;
         index = index+1;
     end

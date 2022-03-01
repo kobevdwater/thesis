@@ -8,10 +8,17 @@ function Clusters = getOtherClusters(method,Y,k)
             info
             Clusters = info(2,1:I);
         case "Weighted"
-            Clusters = SSEWeightedClustering(Y,k,3);
+            Clusters = SSEWeightedClustering(Y,k,10);
+        case "BestMatrix"
+            Clusters = BestMatrixSSEClustering(Y,k,10);
+
         case "Venu"
             Sim = venuFlatten(Y);
-            Clusters = spectralClustering(Sim,3,k,'sim');
+            Clusters = spectralClustering(Sim,k);
+        case "SFC"
+            Clusterings = clusterTensor(Y,k);
+            Sim = SimFromClusterings(Clusterings);
+            Clusters = spectralClustering(Sim,k);
         otherwise
             warning('unexpected other method name '+ method)
     end

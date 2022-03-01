@@ -8,7 +8,7 @@
 %   r: dimentions used for spectral clustering.
 %returns:
 %   clusters: The clustering of the first mode.
-function clusters = clusterOnTucker2(G,A1,k,r)
+function clusters = clusterOnTucker2(G,A1,k)
     M = A1';
     M = M./vecnorm(M);
 
@@ -18,6 +18,6 @@ function clusters = clusterOnTucker2(G,A1,k,r)
     similarity = M'*M;
     similarity = max(similarity,0);
     %we can use this similarity matrix to cluster the sensors.
-    clusters = spectralClustering(similarity,r,k,'sim');
+    clusters = spectralClustering(similarity,k);
 
 end
