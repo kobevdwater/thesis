@@ -18,19 +18,23 @@ k=3;
 retries = 1;
 jrange = 5:5:50;
 
-TuckerMethods = ["Tucker1","Tucker2","Tucker3"];
-% TuckerMethods = ["Tucker1"];
+% TuckerMethods = ["Tucker1","Tucker2","Tucker3"];
+TuckerMethods = ["Tucker1","Tucker1P"];
 % TuckerMethods = [];
-CPMethods = ["CP1","CP2"];
-% CPMethods = ["CP1"];
+% CPMethods = ["CP1","CP2"];
+CPMethods = ["CP1"];
 % CPMethods = [];
 % OtherMethods = ["Ex","Random","Venu","Weighted"];
-OtherMethods = ["Ex","Random","Weighted","BestMatrix","SFC","Venu"];
+OtherMethods = ["Ex","Random","Weighted","BestMatrix","SFC","Venu","VenuP",];
 am = size(Yn,3);
 TuckerResults = zeros(length(jrange),length(TuckerMethods),retries);
 CPResults = zeros(length(jrange),length(CPMethods),retries);
 OtherResults = zeros(length(jrange),length(OtherMethods),retries);
+PResults = zeros(length(jrange),length(OtherMethods),retries);
 exerciseClusters = info(2,1:180);
+decomp = {};
+decomp.Y = Yn;
+decomp.P = Pn;
 for j=1:am
     D= Yn(:,:,j);
     nrm = norm(D);
@@ -39,12 +43,18 @@ end
 for j = 1:length(jrange)
     j
     R = jrange(j);
-    [U,G] = mlsvd(Yn,[R,R,R]);
-    Ucp = cpd(Yn,R);
+    [U,G] = mlsvd(Yn,[R,R,R,R]);
+    [Up,Gp] = mlsvd(Pn,[R,R,R]);
+    decomp.U = U;
+    decomp.G = G;
+    decomp.Gp = Gp;
+    decomp.Up = Up;
+    C = cpd(Yn,R);
+    decomp.C = C;
 
     for ret=1:retries
         for m=1:length(TuckerMethods)
-            Clusters = getTuckerClusters(TuckerMethods(m),G,U,k);
+            Clusters = getExactClusters(TuckerMethods(m),decomp,k);
             for i=1:am
                 D = Yn(:,:,i);
                 nrm = norm(D);
@@ -52,7 +62,7 @@ for j = 1:length(jrange)
             end
         end
         for m=1:length(CPMethods)
-            Clusters = getCPClusters(CPMethods(m),Ucp,k);
+            Clusters = getCPClusters(CPMethods(m),decomp.C,k);
             for i=1:am
                 D = Yn(:,:,i);
                 nrm = norm(D);
@@ -60,9 +70,9 @@ for j = 1:length(jrange)
             end
         end
         for m= 2:length(OtherMethods)
-            Clusters = getOtherClusters(OtherMethods(m),Yn,k);
+            Clusters = getExactClusters(OtherMethods(m),decomp,k);
             for i=1:am
-                D = Xn(:,:,i);
+                D = Yn(:,:,i);
                 nrm = norm(D);
                 OtherResults(j,m,ret) = OtherResults(j,m,ret)+calculateSSE(Clusters,D)/nrm;
             end

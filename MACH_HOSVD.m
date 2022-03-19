@@ -14,7 +14,8 @@
 function [G,U,sr] = MACH_HOSVD(X,r,p)
     sz = size(X);
     R = (rand(sz)<p);
-    Xh = R.*X./p;
+%     Xh = R.*X./p;
+    Xh = R.*X;
     sr = sum(R,'All')/(prod(sz,"all"));
     U = {};
     Ut = {};

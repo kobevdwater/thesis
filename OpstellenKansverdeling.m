@@ -33,7 +33,6 @@ function p = OpstellenKansverdeling(D,options)
         js = randi(k);
         rowMean = 1/k*sum(Di(is,:).^2);
         p(:,i) = Di(:,js).^2+Di(is,js).^2+rowMean;
-%         p(:,i) = pr./(sum(pr)*c);
     end
     p = p./sum(p,"all");
 end 

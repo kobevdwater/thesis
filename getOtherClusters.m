@@ -15,6 +15,9 @@ function Clusters = getOtherClusters(method,Y,k)
         case "Venu"
             Sim = venuFlatten(Y);
             Clusters = spectralClustering(Sim,k);
+        case "VenuP"
+            Sim = venuFlattenP(Y);
+            Clusters = spectralClustering(Sim,k);
         case "SFC"
             Clusterings = clusterTensor(Y,k);
             Sim = SimFromClusterings(Clusterings);

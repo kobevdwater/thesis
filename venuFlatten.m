@@ -22,15 +22,16 @@ function [simMat,DisMat] = venuFlatten(Y,r,options)
         options.am {mustBeNumeric,mustBePositive} = 10;
         options.abc (1,1) {mustBeNumeric} = 3;
     end
-    [~,j,k] = size(Y);
+    sz = size(Y);
+    maxfibers = prod(sz(2:end),'all');
     if r    
         if options.abc==1
-            I = randi(j*k,r,1);
+            I = randi(maxfibers,r,1);
         elseif options.abc == 2
-            I = round(linspace(1,j*k,r));
+            I = round(linspace(1,maxfibers,r));
         else
             p = OpstellenKansverdeling(Y,'am',options.am);
-            I = datasample(1:j*k,r,'Weights',p(:)','Replace',false);
+            I = datasample(1:maxfibers,r,'Weights',p(:)','Replace',false);
         end
 
     else

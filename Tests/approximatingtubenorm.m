@@ -1,7 +1,6 @@
 %Testing if we can approximate the norm of the rows of the mode 3
 %matricization based on the mode 1 and 2 norms. 
 %Turns out it works fairly well. Does not capture extreme values.
-% Noce for third mode venu.
 initialize;
 M3 = tens2mat(Yn,3);
 realNorm = vecnorm(M3);

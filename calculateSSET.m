@@ -7,10 +7,12 @@
 %result:
 %   SSE: the sum of the normalized SSE of all slices. 
 function SSE = calculateSSET(Y,Clusters)
-    am = size(Y,3);
+    sz = size(Y);
+    am = prod(sz(3:end),'all');
     SSE = 0;
     for i=1:am
         D = Y(:,:,i);
         nrm = norm(D);
         SSE = SSE + calculateSSE(Clusters,D)/nrm;
     end
+end

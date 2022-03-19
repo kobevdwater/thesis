@@ -1,7 +1,7 @@
-%CALCULATESSE: calculate SSE of a clustering.
+%CALCULATESSE: calculate SSE of a clustering. 
 %parameters: 
 %   clustering: clusters of objects. 
-%   D: the distance matrix on which the sse has to be calculated.
+%   D: the distance matrix on which the SSE has to be calculated.
 %returns: 
 %   sse: The sse of the clustering.
 function sse = calculateSSE(clustering,D)

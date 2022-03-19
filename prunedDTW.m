@@ -35,6 +35,4 @@ function dis = prunedDTW(a1,a2,w)
         ec = ec_next;
     end
     dis = D(N,N);
-    imshow(D./dis/2)
-
 end

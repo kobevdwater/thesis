@@ -1,13 +1,14 @@
 %VenuSpectralTest
 initialize
-[i,j,k] = size(Yn);
-K = 4;
-Rmax = 500;
+K = 6;
+Rmax = 50;
 Rrange = 5:5:Rmax;
 R = length(Rrange);
-p = OpstellenKansverdeling(Yn);
+T = Mo;
+[i,j,k] = size(T);
+p = OpstellenKansverdeling(T);
 I = datasample(1:j*k,Rmax,'Weights',p(:)','Replace',false);
-M = tens2mat(Yn,1);
+M = tens2mat(T,1);
 Dres = zeros(K,R);
 SSERes = zeros(R,1);
 SSEResT = zeros(R,1);
@@ -19,7 +20,7 @@ for j=1:R
     simMat = Mrt'*Mrt;
     [Clusters,V,D] = spectralcluster(simMat,K,'Distance','precomputed','LaplacianNormalization','symmetric');
     Dres(:,j) = D;
-    SSERes(j) = calculateSSET(Yn,Clusters);
+    SSERes(j) = calculateSSET(T,Clusters);
 %     [U,G] = mlsvd(Yn,[R,R,R]);
 %     Clusters = getTuckerClusters("Tucker1",G,U,K);
 %     SSEResT(j) = calculateSSET(Yn,Clusters);

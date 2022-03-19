@@ -5,5 +5,6 @@ function Clusters = getFSTDClusters(Y,r,k)
     for i=1:size(Y,3)
         Dh = Ya(:,:,i);
         Dh = Dh+Dh';
+        Dh = max(Dh,0);
         Clusters(i,:) = spectralClustering(Dh,k);
     end

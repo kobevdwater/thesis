@@ -15,27 +15,30 @@
 %segmentation by Govindu.
 %
 % See also OPSTELLENKANSVERDELING
-function [simMat,DisMat] = venuFlattenP(Y,r,am,abc)
-    if nargin < 3
-        am = 10;
+function [simMat,DisMat] = venuFlattenP(Y,r,options)
+    arguments
+        Y
+        r (1,1) {mustBeNumericOrLogical} = false;
+        options.am {mustBeNumeric,mustBePositive} = 10;
+        options.abc (1,1) {mustBeNumeric} = 3;
     end
-    if nargin < 4
-        abc = 3;
-    end
-    [i,j,k] = size(Y);
+    sz = size(Y);
+    maxfibers = prod(sz,'all')./sz(3);
     %probability distribution to sample a fiber. Based on the norm of the
     %two fibers running trough the fiber.
-    p = OpstellenKansverdeling(Y,'am',am);
+    p = OpstellenKansverdeling(Y,'am',options.am);
     p = sum(p,2);
-    p = kron(p,p);
-    r = min(r,i*j);
-    if nargin >= 2
-        if abc==1
+    pa = permute(p,[2,1,3]);
+    p = pagemtimes(p,pa);
+%     p = kron(p,p);
+    if r
+        r = min(r,maxfibers);
+        if options.abc==1
             [~,I] = maxk(p(:),r);
-        elseif abc == 2
-            I = round(linspace(1,i*j,r));
+        elseif options.abc == 2
+            I = round(linspace(1,maxfibers,r));
         else
-            I = datasample(1:i*j,r,'Weights',p(:)','Replace',false);
+            I = datasample(1:maxfibers,r,'Weights',p(:)','Replace',false);
         end
     else
         I = ':';

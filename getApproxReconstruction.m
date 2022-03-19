@@ -9,7 +9,11 @@ function Approx = getApproxReconstruction(method,Y,samplerate)
             U = ParCube(Y,samplerate^(1/3),"intact",false,"distance",false);
             Approx = cpdgen(U);
         case "MACH"
-            [G,U] = MACH_HOSVD(Y,10,samplerate);
+            [G,U] = MACH_HOSVD(Y,40,samplerate);
+            Approx = lmlragen(U,G);
+        case "Tucker"
+%             sz = size(Y)
+            [U,G] = mlsvd(Y,[25,25,25]);
             Approx = lmlragen(U,G);
 
         otherwise
