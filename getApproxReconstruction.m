@@ -3,6 +3,14 @@ function Approx = getApproxReconstruction(method,Y,samplerate)
     switch method
         case "FSTD"
             r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTD(Y,r);
+            Approx = lmlragen(Cn,W);
+        case "FSTDY"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDY(Y,r);
+            Approx = lmlragen(Cn,W);
+        case "FSTDX"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
             [W,Cn] = FSTDX(Y,r);
             Approx = lmlragen(Cn,W);
         case "ParCube"
@@ -13,7 +21,7 @@ function Approx = getApproxReconstruction(method,Y,samplerate)
             Approx = lmlragen(U,G);
         case "Tucker"
 %             sz = size(Y)
-            [U,G] = mlsvd(Y,[25,25,25]);
+            [U,G] = mlsvd(Y,[45,45,45]);
             Approx = lmlragen(U,G);
 
         otherwise

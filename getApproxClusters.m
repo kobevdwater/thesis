@@ -46,7 +46,7 @@ function Clusters = getApproxClusters(method, samplerate,Y,k)
             r = floor(samplerate*prod(sz(2:end),'all'));
             [~,Dist] = venuFlatten(Y,r);
             Clusters = spectralClustering(Dist,k,'isDist',true);
-        case "VenuHi"
+        case "VenuRa"
             r  = floor(samplerate*prod(sz(2:end),'all'));
             simMatrix = venuFlatten(Y,r,'abc',1);
             simMatrix = max(simMatrix,0);
@@ -56,7 +56,7 @@ function Clusters = getApproxClusters(method, samplerate,Y,k)
             simMatrix = venuFlatten(Y,r,"abc",2);
             Clusters = spectralClustering(simMatrix,k);
         case "FSTD1"
-            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))))
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
             [W,Cn] = FSTD(Y,r);
             Clusters = clusterOnTucker(W,Cn{1,1},k);
         case "FSTDX1"
@@ -116,8 +116,9 @@ function Clusters = getApproxClusters(method, samplerate,Y,k)
         case "XYZ"
             Clusters = repmat([1;2;3],75/3,1);
         case "SOLSFC"
-            r = floor(samplerate*size(Y,1)/2)
-            Clusterings = getSOLRADMClusters(Y,r,k);
+            sz = size(Y);
+            a = sqrt(samplerate/2);
+            Clusterings = getSOLRADMClusters(Y,a,k);
             Sim = SimFromClusterings(Clusterings);
             Clusters = spectralClustering(Sim,k);
         case "FSTDSFC"

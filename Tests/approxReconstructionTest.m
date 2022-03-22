@@ -13,7 +13,7 @@
 initialize;
 k=3;
 retries = 1;
-methods = ["FSTD","MACH","Tucker","ParCube"];
+methods = ["FSTD","FSTDX","Tucker","FSTDY"];
 % used samplerates.
 sinterval = logspace(-2,0,5);
 
@@ -28,7 +28,7 @@ for i=1:100
         end
     end
 end
-Ys = {Y1,Y2,Yn};
+Ys = {Pn};
 result = zeros(length(Ys),length(sinterval),length(methods),retries);
 
 for y = 1:length(Ys)

@@ -1,11 +1,11 @@
-% VENUFLATTEN: Create a similarity matrix of the third mode based on a tensor using sampling
+% VENUFLATTENP: Create a similarity matrix of the third mode based on a tensor using sampling
 %parameters:
 %   Y: Tensor to create similarity matrix from in the third mode.
-%   r: fibers to use in the sampling.
+%   r: amount of fibers to use in the sampling.
 %   am: amount of retries for OpstellenKnasverdeling. Default: 10
 %   abs: chose the way the sampled fivers are chosen. Default: 3
 %       possible options:
-%           1: take r fibers with the highest chance.
+%           1: take r fibers at random.
 %           2: take r fibers uniformly spaced from eachother.
 %           3: take r fibers chosen with probablilty distribution
 %result:
@@ -30,11 +30,10 @@ function [simMat,DisMat] = venuFlattenP(Y,r,options)
     p = sum(p,2);
     pa = permute(p,[2,1,3]);
     p = pagemtimes(p,pa);
-%     p = kron(p,p);
     if r
         r = min(r,maxfibers);
         if options.abc==1
-            [~,I] = maxk(p(:),r);
+            I = randi(maxfibers,1,r);
         elseif options.abc == 2
             I = round(linspace(1,maxfibers,r));
         else

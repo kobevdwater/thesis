@@ -34,5 +34,6 @@ function p = OpstellenKansverdeling(D,options)
         rowMean = 1/k*sum(Di(is,:).^2);
         p(:,i) = Di(:,js).^2+Di(is,js).^2+rowMean;
     end
+    p = p./sum(p,1);
     p = p./sum(p,"all");
 end 

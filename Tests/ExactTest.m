@@ -1,14 +1,14 @@
 
 initialize;
-T = S;
-Tp = Sp;
-Tm = Sm;
-useTm = true;
+T = Yn;
+Tp = Pn;
+Tm = Pn;
+useTm = false;
 clusterFeatures = 2; %1: person; 2: exercise; 3: execution type
 ks = [length(unique(info(1,:))),length(unique(info(2,:))),length(unique(info(3,:)))];
 k=ks(clusterFeatures); %amount of features
-% expected = info(clusterFeatures,1:180); %expected clusters
-expected = false;
+expected = info(clusterFeatures,1:180); %expected clusters
+% expected = false;
 sz = size(T);
 am = prod(sz(3:end),'all');
 retries = 1; %amount of times we repeat the test. Result will be averaged over these tests.

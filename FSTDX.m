@@ -14,7 +14,6 @@ function [W,Cn] = FSTDX(Y,r)
         IJK{1,i} = randi(sz(i),1,r);
     end
     W = Y(IJK{:});
-    size(W)
     Cn={};
     for i=1:length(sz)
         indx = IJK;

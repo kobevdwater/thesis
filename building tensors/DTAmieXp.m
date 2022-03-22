@@ -1,25 +1,37 @@
-%XPDISTANCETENSORP class representing a distance tensor. Using this class
-%   allows us to calculate values when they are needed. Uses parfor loop to
-%   speed up calculations. Requires parallel computing toolbox.
-%   size: sensor x sensor x person x xyz
-classdef XPDistanceTensorP < handle
+%DTAmieY class representing a 4D distance tensor of the Amie dataset. Where
+%the sensors are divided into 3 groups. Namely x, y and z.
+%Y(i,j,k,l) = distance between persons i and j based on the sensor on limb k in direction l.
+%The data in the tensor can be accesed via normal indexing. 
+%   e.g. Y(:,1,1,1) will result in a fiber.
+%The percentage of the elements that are calculated can be calculated via 
+%   Y.getSampleRate()
+%   Indexing can be used to find the samplerate of that part of the tensor.
+%   e.g. Y.getSampleRate(:,:,1,1) will give the sampling in the first slice.
+classdef DTAmieXp < handle
     properties
         Sz
         Data
         Iset
         Accesed
-        info
+        indexset
     end
     methods
         
-        function obj =XPDistanceTensorP()
-            obj.Sz = [25,25,180,3];
+        function obj =DTAmieXp()
+            obj.Sz = [180,180,25,3];
             obj.Data = NaN(obj.Sz);
             obj.Accesed = zeros(obj.Sz);
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:,:) = 0;
             end
-            obj.Iset(obj.Sz(3)).data = [];            
+            obj.Iset(obj.Sz(1)).data = [];
+            obj.indexset = 1:185; 
+            obj.indexset(152) = []; %6
+            obj.indexset(151) = []; %1
+            obj.indexset(71) = []; %6
+            obj.indexset(36) = []; %6
+            obj.indexset(7) = [];  
+            
         end
 
         function sref = subsref(obj,s)
@@ -55,9 +67,9 @@ classdef XPDistanceTensorP < handle
             [I,J,K,L] = obj.parseIndices(indices);
             obj.Accesed(I,J,K,L) = 1;
             %load the needed data
-            for i = [K]
+            for i = [I J]
                 if isempty(obj.Iset(i).data)
-                    item = sprintf('/skeleton_%d/block0_values',i);
+                    item = sprintf('/skeleton_%d/block0_values',obj.indexset(i));
                     obj.Iset(i).data = h5read('amie/amie-kinect-data.hdf',item);
                 end
             end
@@ -76,10 +88,9 @@ classdef XPDistanceTensorP < handle
                         for l=1:length(L)
                                 if isnan(obj.Data(I(i),J(j),K(k),L(l)))
                                     n = n+1;
-                                    index1 = sub2ind([obj.Sz(4),obj.Sz(3)],L(l),I(i));
-                                    index2 = sub2ind([obj.Sz(4),obj.Sz(1)],L(l),J(j));
-                                    toCalc(n).a1 = obj.Iset(K(k)).data(index1,:);
-                                    toCalc(n).a2 = obj.Iset(K(k)).data(index2,:);
+                                    index = sub2ind([obj.Sz(4),obj.Sz(3)],L(l),K(k));
+                                    toCalc(n).a1 = obj.Iset(I(i)).data(index,:);
+                                    toCalc(n).a2 = obj.Iset(J(j)).data(index,:);
                                     toCalc(n).ijk = [i,j,k,l];
                                     obj.Data(J(j),I(i),K(k),L(l)) = -1;
                                 elseif obj.Data(I(i),J(j),K(k),L(l)) == -1
@@ -95,7 +106,8 @@ classdef XPDistanceTensorP < handle
             %Calculate the data that has to be calculated.
             newData = zeros(n,1);
             parfor i=1:n
-                dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)),25);
+%                 dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)),25);
+                dis = dtw(normalize(toCalc(i).a1(1:4:end)),normalize(toCalc(i).a2(1:4:end)))
                 newData(i) = dis;
             end
             %Place the newly calculated data in output structure and in the

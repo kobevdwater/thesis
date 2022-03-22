@@ -1,32 +1,39 @@
-%DTAmieY class representing a 4D distance tensor of the Amie dataset. Where
-%the sensors are divided into 3 groups. Namely x, y and z.
-%Y(i,j,k,l) = distance between persons i and j based on the sensor on limb k in direction l.
+%DTAmieX4 class representing a 5D distance tensor of the Amie dataset.
+%This tensor only compairs limbs or sensors in the same direction
+%Y(i,j,k,l,m) = distance between limb i and j of person k via the sensor in direction m on repetition l.
 %The data in the tensor can be accesed via normal indexing. 
 %   e.g. Y(:,1,1,1) will result in a fiber.
 %The percentage of the elements that are calculated can be calculated via 
 %   Y.getSampleRate()
 %   Indexing can be used to find the samplerate of that part of the tensor.
 %   e.g. Y.getSampleRate(:,:,1,1) will give the sampling in the first slice.
-classdef DTAmieX < handle
+% All 'persons' containing less than 8 repetitions are removed.
+classdef DTAmieX4 < handle
     properties
         Sz
         Data
         Iset
         Accesed
-        info
+        indexset
     end
     methods
         
-        function obj =DTAmieX()
-            obj.Sz = [180,180,25,3];
+        function obj =DTAmieX4()
+            obj.Sz = [25,25,180,3,8];
             obj.Data = NaN(obj.Sz);
             obj.Accesed = zeros(obj.Sz);
             for i = 1:obj.Sz(1)
-                obj.Data(i,i,:,:) = 0;
+                obj.Data(i,i,:) = 0;
             end
-            obj.Iset(obj.Sz(1)).data = [];
-            obj.info = load('E:\School\thesis\thesis\data\info.mat','info').info;
-            
+            obj.Iset(187*100).data = [];
+%             obj.Slice = NaN;
+            %Removing all samples that contain less than 8 repetitions.
+            obj.indexset = 1:185; 
+            obj.indexset(152) = []; %6
+            obj.indexset(151) = []; %1
+            obj.indexset(71) = []; %6
+            obj.indexset(36) = []; %6
+            obj.indexset(7) = [];                
         end
 
         function sref = subsref(obj,s)
@@ -46,7 +53,7 @@ classdef DTAmieX < handle
 
         %Transform the indices given in to a form that can be used to
         %calculate data.
-        function [I,J,K,L] = parseIndices(obj,indices)
+        function [I,J,K,L,M] = parseIndices(obj,indices)
             IJKL = {};
             for i = 1:length(indices)
                 if strcmp(indices{1,i},':')
@@ -55,17 +62,20 @@ classdef DTAmieX < handle
                     IJKL{i} = indices{1,i};
                 end
             end
-            I = IJKL{1};J=IJKL{2};K=IJKL{3};L=IJKL{4};
+            I = IJKL{1};J=IJKL{2};K=IJKL{3};L=IJKL{4};M=IJKL{5};
         end
         
         function data = calcData(obj,indices)
-            [I,J,K,L] = obj.parseIndices(indices);
-            obj.Accesed(I,J,K,L) = 1;
+            [I,J,K,L,M] = obj.parseIndices(indices);
+            obj.Accesed(I,J,K,L,M) = 1;
             %load the needed data
-            for i = [I J]
-                if isempty(obj.Iset(i).data)
-                    item = sprintf('/skeleton_%d/block0_values',i);
-                    obj.Iset(i).data = h5read('amie/amie-kinect-data.hdf',item);
+            for k = K
+                for m=M
+                    index = 100*obj.indexset(k)+m;
+                    if isempty(obj.Iset(index).data)
+                        item = sprintf('/skeleton_%d/block0_values',index);
+                        obj.Iset(index).data = h5read('amie/split.hdf',item);
+                    end
                 end
             end
  
@@ -73,7 +83,7 @@ classdef DTAmieX < handle
             toWrite = {};
             data = zeros(length(I),length(J),length(K));
             n = 0;
-            m = 0;
+            o = 0;
             %Find all indices that have to be calculated. If the data has
             %been calculated before, it will be copied and not calculated
             %again.
@@ -81,43 +91,49 @@ classdef DTAmieX < handle
                 for j=1:length(J)
                     for k=1:length(K)
                         for l=1:length(L)
-                                if isnan(obj.Data(I(i),J(j),K(k),L(l)))
+                            for m=1:length(M)
+                                if isnan(obj.Data(I(i),J(j),K(k),L(l),M(m)))
                                     n = n+1;
-                                    index = sub2ind([obj.Sz(4),obj.Sz(3)],L(l),K(k));
-                                    toCalc(n).a1 = obj.Iset(I(i)).data(index,:);
-                                    toCalc(n).a2 = obj.Iset(J(j)).data(index,:);
-                                    toCalc(n).ijk = [i,j,k,l];
-                                    obj.Data(J(j),I(i),K(k),L(l)) = -1;
-                                elseif obj.Data(I(i),J(j),K(k),L(l)) == -1
-                                    m=m+1;
-                                    toWrite(m).ijk = [i,j,k,l];
+                                    kk=obj.indexset(K(k));
+                                    index = kk*100+M(m);
+                                    sens1 = sub2ind([obj.Sz(4),obj.Sz(1)],L(l),I(i));
+                                    sens2 = sub2ind([obj.Sz(4),obj.Sz(2)],L(l),J(j));
+                                    toCalc(n).a1 = obj.Iset(index).data(sens1,:);
+                                    toCalc(n).a2 = obj.Iset(index).data(sens2,:);
+                                    toCalc(n).ijk = [i,j,k,l,m];
+                                    obj.Data(J(j),I(i),K(k),L(l),M(m)) = -1;
+                                elseif obj.Data(I(i),J(j),K(k),L(l),M(m)) == -1
+                                    o=o+1;
+                                    toWrite(o).ijk = [i,j,k,l,m];
                                 else
-                                    data(i,j,k,l) = obj.Data(I(i),J(j),K(k),L(l));
+                                    data(i,j,k,l,m) = obj.Data(I(i),J(j),K(k),L(l),M(m));
                                 end
+                            end
                         end
                     end
                 end
             end
             %Calculate the data that has to be calculated.
             newData = zeros(n,1);
-            parfor i=1:n
-                dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)),25);
+            for i=1:n
+%                 dis = prunedDTW(normalize(toCalc(i).a1),normalize(toCalc(i).a2),5);
+                dis = dtw(normalize(toCalc(i).a1),normalize(toCalc(i).a2));
                 newData(i) = dis;
             end
             %Place the newly calculated data in output structure and in the
             %internal datastructure used to remember calculated data.
             for p=1:n
                 ijk = toCalc(p).ijk;
-                i=ijk(1);j=ijk(2);k=ijk(3);l=ijk(4);
-                data(i,j,k,l) = newData(p);
-                obj.Data(I(i),J(j),K(k),L(l)) = newData(p);
-                obj.Data(J(j),I(i),K(k),L(l)) = newData(p);
+                i=ijk(1);j=ijk(2);k=ijk(3);l=ijk(4);m=ijk(5);
+                data(i,j,k,l,m) = newData(p);
+                obj.Data(I(i),J(j),K(k),L(l),M(m)) = newData(p);
+                obj.Data(J(j),I(i),K(k),L(l),M(m)) = newData(p);
             end
             %Place the previously calculated data in the output structure.
-            for p=1:m
+            for p=1:o
                 ijk = toWrite(p).ijk;
-                i=ijk(1);j=ijk(2);k=ijk(3);ijk(4);
-                data(i,j,k) = obj.Data(I(i),J(j),K(k),L(l));
+                i=ijk(1);j=ijk(2);k=ijk(3);ijk(4);m=ijk(5);
+                data(i,j,k,m) = obj.Data(I(i),J(j),K(k),L(l),M(m));
             end
         end
         

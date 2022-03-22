@@ -102,12 +102,18 @@ classdef DTAmieY < handle
             %Calculate the data that has to be calculated.
             newData = zeros(n,1);
             parfor i=1:n
+%                 a1 = toCalc(i).a1(1:4:end);
+%                 a1 = normalize(a1);
+%                 a2 = toCalc(i).a2(1:4:end);
+%                 a2 = normalize(a2);
+% %                 dis = prunedDTW(a1,a2,30);
+%                 dis = dtwDistance(a1,a2,30);
                 a1 = toCalc(i).a1(1:4:end);
                 a1 = normalize(a1);
                 a2 = toCalc(i).a2(1:4:end);
                 a2 = normalize(a2);
 %                 dis = prunedDTW(a1,a2,30);
-                dis = dtwDistance(a1,a2,30);
+                dis = dtw(a1,a2);
                 newData(i) = dis;
             end
             %Place the newly calculated data in output structure and in the

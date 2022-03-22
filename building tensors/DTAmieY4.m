@@ -115,7 +115,8 @@ classdef DTAmieY4 < handle
             %Calculate the data that has to be calculated.
             newData = zeros(n,1);
             parfor i=1:n
-                dis = dtwDistance(normalize(toCalc(i).a1),normalize(toCalc(i).a2),10);
+%                 dis = dtwDistance(normalize(toCalc(i).a1),normalize(toCalc(i).a2),10);
+                dis = dtw(normalize(toCalc(i).a1),normalize(toCalc(i).a2))
                 newData(i) = dis;
             end
             %Place the newly calculated data in output structure and in the

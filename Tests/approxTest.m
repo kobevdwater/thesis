@@ -28,14 +28,14 @@
 %   the samplerate compaired to the expected clusters.
 initialize;
 k=3;
-T = S;
-Td = S;
-Tp = Sp;
+T = Yn;
+Td = Y3;
+Tp = Pn;
 retries = 1;
-methods = ["Random","VenuHi","FSTDY1","MACH1"];
+methods = ["Random","Venu","VenuSVD","VenuSVD3"];
 % methods = ["SOLSFC","Random"];
 methodsP = ["VenuP"];
-sinterval = logspace(-3,-1,20);
+sinterval = logspace(-3,-2,10);
 % expected = info(2,1:180);
 expected = false;
 

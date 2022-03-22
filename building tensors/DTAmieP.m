@@ -99,7 +99,8 @@ classdef DTAmieP < handle
                 a1 = normalize(a1);
                 a2 = toCalc(i).a2(1:4:end);
                 a2 = normalize(a2);
-                dis = dtwDistance(a1,a2,30);
+%                 dis = dtwDistance(a1,a2,30);
+                dis = dtw(a1,a2);
                 newData(i) = dis;
             end
             for p=1:n

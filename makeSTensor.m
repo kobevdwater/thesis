@@ -33,7 +33,7 @@ for k=1:theend-start
         for j=1:length(Cit)
             a2 = Series{j,k};
             %Skiping cities with the same name by taking first found year.
-            S(i,j,k) = norm(a1(1:12)-a2(1:12));
+            S(i,j,k) = norm(a1(1:12)-a2(1:12))./max(norm(a1(1:12)),norm(a2(1:12)));
         end
     end
 end
@@ -48,7 +48,7 @@ for i=1:tm
             a1 = Series{k,i};
             a2 = Series{k,j};
             %Skiping cities with the same name by taking first found year.
-            Sp(i,j,k) = norm(a1(1:12)-a2(1:12));
+            Sp(i,j,k) = norm(a1(1:12)-a2(1:12))./max(norm(a1(1:12)),norm(a2(1:12)));
         end
     end
 end
