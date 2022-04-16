@@ -37,8 +37,6 @@ function V = regression(U,D,r)
         B = B+s*vr*vr';
         u = u+gamma/(fie*(1-gamma));l = l+gamma/(fie*(1+gamma));
     end
-    %indices = [1:n];
-    %weights = ones(1,n);
     sqrt_Weights = sqrt(weights);
     Y = D(indices,:).*sqrt_Weights';
     V = zeros(k,n);

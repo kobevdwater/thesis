@@ -1,4 +1,5 @@
-%PARCUBE: Create a low rank CP decomposition using the ParCube algorithm.
+%PARCUBEnn: Create a low rank Non negative CP decomposition using the ParCube algorithm.
+%   Uses a non-negative CP decomposition.
 %parameters: 
 %   X: the tensor to decompose.
 %   options.intact: keep the first mode intact. Makes samplerate of the
@@ -12,7 +13,7 @@
 %   U = {Ah,Bh,Ch}: approximation of the CP decomposition of X.
 % based on paper: ParCube: Sparse Parallelizable Tensor Decompositions.
 %   Papalexakis.
-function U = ParCube(X,sr,options)
+function U = ParCubenn(X,sr,options)
     arguments
         X
         sr (1,1) {mustBeNumeric} = 1
@@ -24,7 +25,7 @@ function U = ParCube(X,sr,options)
     [Xs,IJK,originalsz] = BiasedSample(X,sr,'intact',options.intact,'distance',options.distance);
     Xs = squeeze(Xs);
     dim = options.k;
-    Us = cpd(Xs,dim);
+    Us = cp_nmu(tensor(Xs),dim);
     j=1;
     U = {};
     for i=1:length(originalsz)
@@ -34,7 +35,7 @@ function U = ParCube(X,sr,options)
             U{1,i} = M;
         else
             M = zeros(sz(i),dim);
-            M(IJK{1,i},:) = Us{1,j};
+            M(IJK{1,i},:) = Us.U{j};
             U{1,i} = M;
             j = j+1;
         end

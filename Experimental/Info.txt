@@ -1,0 +1,10 @@
+This map contains experimental functions that are not used by the main methods.
+Most of them are alternatives to functions that are used in the main methods.
+- FSTDX: Choses fibers at random
+- FSTDY: Choses fibers based on the relative approximation error.
+- FSTDZ: Choses fibers based on the distribution proportional to the relative apprximation error.
+- ParCubeX: Choses indices at random.
+- ParCubenn: Uses a non-negative CP decomposition.
+- ParCubennX: Uses an approximation of the non-negative CP decomposition in which only the first mode is decomposed by useing a non-negative matrix factorization.
+- MACH_HOSVDnn: Uses a non-negative Tucker decomposition
+.

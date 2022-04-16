@@ -1,7 +1,6 @@
 function Clusters = getSOLRADMClusters(Y,a,k)
     sz = size(Y);
     r1 = floor(sz(1)*a);
-    r1
     am = prod(sz(3:end),'all');
     r3 = floor(am*a);
     Clusters = zeros(r3,size(Y,1));

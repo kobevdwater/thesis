@@ -2,15 +2,24 @@
 %in the same cluster will have the same color.
 %parameters:
 %   Clusters: a clustering of the cities.
-function colorMapClusters(Clusters)
+%   options.allCities: Should be true if the clustering contains all cities
+%       and false if it only contains the major cities.
+function colorMapClusters(Clusters,options)
+    arguments
+        Clusters
+        options.allCities {mustBeNumericOrLogical} = false
+    end
     lnspecs = ["r+","g+",'b+','c+','m+','y+',"r*","g*",'b*','c*','m*','y*'];
     opts = detectImportOptions('./weather/archive/GlobalLandTemperaturesByMajorCity.csv');
     opts = setvartype(opts,{'City'},'categorical');
-    G = readtable('./weather/archive/GlobalLandTemperaturesByMajorCity.csv',opts);
-    I = find(year(G{:,1}) >= 1999);
+    if options.allCities
+        G = readtable('./weather/archive/GlobalLandTemperaturesByCity.csv',opts);
+    else
+        G = readtable('./weather/archive/GlobalLandTemperaturesByMajorCity.csv',opts);
+    end
+    I = find(year(G{:,1}) == 1999);
     G = G(I,:);
-    I = find(year(G{:,1}) <= 2000);
-    G = G(I,:);
+
     Img = imread('./weather/world.jpg');
     Cit = unique(G{:,4});
     imshow(Img);

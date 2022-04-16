@@ -7,12 +7,9 @@
 %   Cn: Factor matrices.
 %Besed on paper: Generalizing the column-row matrix decomposition to
 %multi-way arrays by Caiafa and Cichocki.
-function [W,Cn] = FSTDX(Y,r)
+function [W,Cn] = FSTDZ(Y,r)
     sz = size(Y);
-    IJK ={};
-    for i =1:length(sz)
-        IJK{1,i} = randi(sz(i),1,r);
-    end
+    IJK = adaptiveIndexChoiseZ(Y,r);
     W = Y(IJK{:});
     Cn={};
     for i=1:length(sz)

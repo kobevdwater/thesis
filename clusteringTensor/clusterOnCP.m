@@ -10,6 +10,7 @@ function clusters = clusterOnCP(A1,k,r)
     M = A1';
     M = M./vecnorm(M);
     similarity = M'*M;
+%     similarity = 0.5 + 0.5*similarity;
     similarity = max(similarity,0);
     %we can use this similarity matrix to cluster the sensors.
     clusters = spectralClustering(similarity,k);

@@ -1,4 +1,5 @@
 % FSTD: Create a Tucker decomposition based on the FSTD algorithm.
+%   Choses indexes based on the relative approximation error.
 %parameters:
 %   Y: Tensor to decompose.
 %   r: dimension of the decomposition.
@@ -11,7 +12,6 @@ function [W,Cn] = FSTDY(Y,r)
     sz = size(Y);
     IJK = adaptiveIndexChoiseY(Y,r);
     W = Y(IJK{:});
-    size(W)
     Cn={};
     for i=1:length(sz)
         indx = IJK;

@@ -16,7 +16,7 @@ function [precission,recall] = BCubed(found,expected)
     for i=1:length(found)
         cl{found(i)} = [cl{found(i)} expected(i)];
     end
-    [TotalAmount,~] = groupcounts(expected');
+    [TotalAmount,~] = groupcounts(expected(:));
     recall = 0;
     precission = 0;
 

@@ -10,12 +10,7 @@
 % Tensors 1 and 2 are based on the tensors used in: 
 %   Generalizing the column–row matrix decomposition
 %   to multi-way arrays by Caiafa and Cichocki
-initialize;
-k=3;
-retries = 1;
-methods = ["FSTD","FSTDX","Tucker","FSTDY"];
-% used samplerates.
-sinterval = logspace(-2,0,5);
+function approxReconstructionTest(Yn,methods,retries,sinterval)
 
 %Construction of Y1 and Y2
 [U,G] = lmlra_rnd([100,100,100],[10,10,10]);
@@ -28,7 +23,8 @@ for i=1:100
         end
     end
 end
-Ys = {Pn};
+Ys = {Y1,Y2,Yn};
+Ynames = ["Y1","Y2","Yn"];
 result = zeros(length(Ys),length(sinterval),length(methods),retries);
 
 for y = 1:length(Ys)
@@ -38,14 +34,14 @@ for y = 1:length(Ys)
         for i=1:retries
             for m=1:length(methods)
                 Approx = getApproxReconstruction(methods(m),Y,sinterval(si));
-                result(y,si,m,i) = frob((Y-Approx)./nrm);
+                result(y,si,m,i) = frob((Y-Approx))/frob(Y);
             end
         end
     end
 end
 mean = sum(result,4)./retries;
 for i=1:length(Ys)
-    figure;
+    figure;title(Ynames(i));
     loglog(sinterval,squeeze(mean(i,:,:)));
     legend(methods);
 end

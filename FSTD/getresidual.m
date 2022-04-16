@@ -1,22 +1,48 @@
-function E = getresidual(Y,I,J,K,mode,index1,index2)
-    [i,j,k] = size(Y);
-    W = Y(I,J,K);
-    C1 = Y(:,J,K);C2 = Y(I,:,K);C3 = Y(I,J,:);
-    C1 = tens2mat(C1,1);
-    C2 = tens2mat(C2,2);
-    C3 = tens2mat(C3,3);
-    W1 = pinv(tens2mat(W,1));W2 = pinv(tens2mat(W,2));W3 = pinv(tens2mat(W,3));
-    if mode == 1
-        U = {C1*W1,C2(index1,:)*W2,C3(index2,:)*W3};
-        E = Y(:,index1,index2) - lmlragen(U,W);
+%GETRESIDUAL: get the difference between the tensor Y and the approximation
+% Yh on one fiber.
+%parameters:
+%   Y: the tensor that is to be approximated
+%   IJK: a {1,N} structure containing the fiber that where previously chosen for
+%       each mode.
+%   mode: The mode of the resulting fiber.
+%returns:
+%   E = (Y-Yh)(I1,I2,...,Im-1,:,Im+1,...,IN)
+%   where:
+%       Yh: The approximation of Y created by FSTD when using the fibers in
+%           IJK.
+%       In: The last index in IJK{1,n}
+%       m: the given mode.
+function E = getresidual(Y,IJK,mode)
+    sz = size(Y);
+    W = Y(IJK{:});
+    Ci = {};
+    Wi = {};
+    for i=1:length(sz)
+        idx = IJK;
+        idx{1,i} = 1:sz(i);
+        Ci{1,i} = tens2mat(Y(idx{:}),i);
+%         Wi{1,i} = pinv(tens2mat(W,i));
     end
-    if mode == 2
-        U = {C1(index1,:)*W1,C2*W2,C3(index2,:)*W3};
-        E = Y(index1,:,index2) - lmlragen(U,W);
+    %indices: contains last elements of IJK.
+    indices = {};
+    for i=1:length(sz)
+        indices{1,i} = IJK{1,i}(end);
     end
-    if mode == 3
-        U = {C1(index1,:)*W1,C2(index2,:)*W2,C3*W3};
-        E = squeeze(Y(index1,index2,:))-squeeze(lmlragen(U,W));
+    U = {};
+    for i=1:length(sz)
+        if i==mode
+            A = tens2mat(W,i)';
+            b = Ci{1,i}';
+            U{1,i} = (A\b)';
+%             U{1,i} = Ci{1,i}*Wi{1,i};
+        else
+            A = tens2mat(W,i)';
+            b = Ci{1,i}(indices{1,i},:)';
+            U{1,i} = (A\b)';
+%             U{1,i} = Ci{1,i}(indices{1,i},:)*Wi{1,i};
+        end
     end
-
+    indices{1,mode} = 1:sz(mode);
+    Yf = Y(indices{:});
+    E = Yf-lmlragen(U,W);
 end

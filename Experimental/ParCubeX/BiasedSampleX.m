@@ -1,5 +1,4 @@
-%BIASEDSAMPLE Sample tensor X. Uses the Opstellen Kansverdeling function to
-% create a distribution for sampling. 
+%BIASEDSAMPLE Sample tensor X. Choses fibers at random. 
 %parameters:
 %   X: the tensor being sampled.
 %   sr: the samplerate. Either one number smaller than one. Or an array of
@@ -15,7 +14,7 @@
 %       In case of a third order tensor: Xsmall(i,j,k) = X(I(i),J(j),K(k)) 
 %   Ssz: size of Xsmall.
 % See also OPSTELLENKANSVERDELING
-function [Xsmall, IJK,Ssz] = BiasedSample(X,sr,options)
+function [Xsmall, IJK,Ssz] = BiasedSampleX(X,sr,options)
     arguments 
         X 
         sr {mustBeLessThanOrEqual(sr,1)}
@@ -24,21 +23,9 @@ function [Xsmall, IJK,Ssz] = BiasedSample(X,sr,options)
     end
     sz = size(X);
     Ssz = ceil(sz.*sr);
-    pi = {};
-    if options.distance
-        p = OpstellenKansverdeling(X);
-        for i=2:length(sz)
-            pi{1,i} = sum(tens2mat(p,i-1),2);
-        end
-        pi{1,1} = pi{1,2};
-    else
-        for i=1:length(sz)
-            pi{1,i} = vecnorm(tens2mat(X,i),2,2);
-        end
-    end
     IJK = {};
     for i=1:length(sz)
-        IJK{1,i} = datasample(1:sz(i),Ssz(i),'Weights',pi{1,i},'Replace',false);
+        IJK{1,i} = datasample(1:sz(i),Ssz(i),'Replace',false);
     end
     if options.intact
         IJK{1,options.intact} = 1:sz(options.intact);

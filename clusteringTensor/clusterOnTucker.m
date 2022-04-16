@@ -17,5 +17,5 @@ function clusters = clusterOnTucker(G,A1,k)
     M = M./vecnorm(M);
     similarity = M'*M;
     similarity = max(similarity,0);
-    %we can use this similarity matrix to cluster the sensors.
+    %we can use this similarity matrix to cluster the sens.
     clusters = spectralClustering(similarity,k);

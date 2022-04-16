@@ -11,7 +11,7 @@
 %   Matrices. P. Indyk.
 %Implementation based on work of Mathias Pede.
 function Dh = SOLRADM(D, k, r)
-    p = OpstellenKansverdeling(D,slice=1);
+    p = OpstellenKansverdeling(D);
     U = FMCLRA(D,p,k,r);
     V = regression(U,D,r);
     Dh = U*V;

@@ -5,14 +5,12 @@
 %returns: 
 %   sse: The sse of the clustering.
 function sse = calculateSSE(clustering,D)
-
-    results = zeros(1,length(clustering));
-    for i=1:length(clustering)
-        for j = (i+1):length(clustering)
-            if (clustering(i) == clustering(j))
-                results(i) = results(i) + D(i,j)^2;
-            end
-        end
+    sse = 0;
+    k = max(clustering);
+    for i=1:k
+        elems = clustering(:) == i;
+        sim = elems*elems';
+        sse = sse + sum(sim.*D,"all"); 
     end
-    sse = sum(results);
+    sse = sse/2;
 end

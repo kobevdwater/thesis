@@ -9,16 +9,15 @@
 %   T: The tensor used to create the clusterings.
 %   Td: Distance tensor used to measure SSE of clusterings.
 %   Tp: The tensor used for Pmethods (clustering third mode).
-%   retries: The total number each test will be executed. Result will be
-%       mean over the retries.
 %   methods: Methods to test using the tensor T (clustering first mode). 
 %      See: getApproxClusters for available methods.                                       
 %   methodsP: Methods to test using the tensor Tp (clustering third mode). 
 %      See: getApproxClusters for available methods. 
-%   sinterval: Samplerates to test. 
-%   expected: The clustering to use to compute presicion and recall.
-%       False if expected clusters are not known.
-%   
+%   options.retries: The total number each test will be executed. Result will be
+%       mean over the retries.
+%   options.sinterval: Samplerates to test. 
+%   options.expected: The clustering to use to compute presicion and recall.
+%       False if expected clusters are not known. 
 %result:
 %   Shows the total SSE over all slices from the cluster calculated using
 %   the different methods in function of the samplerate. Will also report
@@ -26,81 +25,24 @@
 %   slice when no expected clusters are known.
 %   Shows the precision and recall of the different methods in function of
 %   the samplerate compaired to the expected clusters.
-initialize;
-k=3;
-T = Yn;
-Td = Y3;
-Tp = Pn;
-retries = 1;
-methods = ["Random","Venu","VenuSVD","VenuSVD3"];
-% methods = ["SOLSFC","Random"];
-methodsP = ["VenuP"];
-sinterval = logspace(-3,-2,10);
-% expected = info(2,1:180);
-expected = false;
-
-sz = size(Td);
-am = prod(sz(3:end),'all');
-mi = length(methods);
-SSEresult = zeros(length(sinterval),length(methods)+ length(methodsP),retries);
-PRresult = zeros(2,length(sinterval),length(methods)+ length(methodsP),retries);
-SSEx = zeros(length(sinterval));
-Ex = "Expected";
-%Calculating methods that are not dependent on samplerate.
-if expected
-    for j=1:am
-        D= Td(:,:,j);
-        nrm = norm(D);
-        SSEx(:) = SSEx(:) + calculateSSE(expected,D)/nrm; 
+%   SSEmean: matrix containing the mean SSE for the different methods and
+%       sampling rates.
+function SSEmean = approxTest(k,T,Td,Tp,methods,options)
+    arguments
+        k; T; Td; Tp
+        methods;
+        options.retries {mustBeInteger,mustBeNonzero, mustBePositive} = 1
+        options.sinterval = false
+        options.expected = false
+        options.Tm = false
+        options.amount {mustBeInteger,mustBeNonzero, mustBePositive} = 10
+        options.show = true
     end
-else
-    Ex = "Matrix";
-   for j=1:am
-        D= Td(:,:,j);
-        nrm = norm(D);
-        MatrixClusters = spectralClustering(D,k,"isDist",true);
-        SSEx(:) = SSEx(:) + calculateSSE(MatrixClusters,D)/nrm; 
-   end
-end
-
-for si = 1:length(sinterval)
-    si
-    for i=1:retries
-        for m=1:length(methods)
-            methods(m)
-            Clusters = getApproxClusters(methods(m),sinterval(si),T,k);
-            if expected
-                [pr,rc] = BCubed(Clusters,expected);
-                PRresult(:,si,m,i) = PRresult(:,si,m,i)+ [pr;rc];
-            end
-            for j=1:am
-                D = Td(:,:,j);
-                nrm = norm(D);
-                SSEresult(si,m,i) = SSEresult(si,m,i) + calculateSSE(Clusters,D)/nrm;
-            end
-        end
-        for m=1:length(methodsP)
-            Clusters = getApproxClusters(methodsP(m),sinterval(si),Tp,k);
-            if expected
-                [pr,rc] = BCubed(Clusters,expected);
-                PRresult(:,si,m+mi,i) = PRresult(:,si,m+mi,i)+ [pr;rc];
-            end
-            for j=1:am
-                D= Td(:,:,j);
-                nrm = norm(D);
-                SSEresult(si,m+mi,i) = SSEresult(si,m+mi,i) + calculateSSE(Clusters,D)/nrm;
-            end
-        end
+    if options.sinterval
+        sinterval = options.sinterval;
+    else
+        sinterval = logspace(-2.5,-1,options.amount);
     end
-end
-
-SSEmean = sum(SSEresult,3)./retries;
-figure('Name','SSE');plot(sinterval,SSEmean);
-hold on; plot(sinterval,SSEx,'o');
-legend([methods,methodsP,Ex]);
-if expected
-    PRmean = sum(PRresult,4)./retries;
-    figure('Name','Precision');hold on; plot(sinterval,squeeze(PRmean(1,:,:)));legend([methods,methodsP]);
-    figure  ('Name','Recall'); hold on; plot(sinterval,squeeze(PRmean(2,:,:)));legend([methods,methodsP]);
+    SSEmean = SSEPrTest(k,T,Td,Tp,methods,@getApproxClusters,sinterval,'retries',options.retries,'Tm',options.Tm,'show',options.show,'expected',options.expected);
 end
 

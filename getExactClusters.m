@@ -6,7 +6,7 @@
 %       U: factor matrices of the tucker decomposition.
 %       C: factor matrices of the CP decomposition.
 %   k: amount of clusters.
-function Clusters = getExactClusters(method,decomp,k)
+function Clusters = getExactClusters(method,R,decomp,k)
     switch method
         case "Tucker1"
             Clusters = clusterOnTucker(decomp.G,decomp.U{1,1},k);
@@ -27,6 +27,17 @@ function Clusters = getExactClusters(method,decomp,k)
             Clusters = clusterOnCP(decomp.C{1,1},k);
         case "CP2"
             Clusters = clusterOnCP2(decomp.C{1,1},k);
+        case "CPN"
+            C = cpd(decomp.Y,R);
+            Clusters = clusterOnCP(C{1,1},k);
+        case "NNMF"
+            M = tens2mat(decomp.Y,1);
+            [W,~] = nnmf(M,R);
+            Clusters = clusterOnCP(W,k);
+        case "SVD"
+            M = tens2mat(decomp.Y,1);
+            [U,~,~] = svds(M,R);
+            Clusters = clusterOnCP(U,k);
         case "Random"
             [I,~,~] = size(decomp.Y);
             Clusters = randi(k,1,I);

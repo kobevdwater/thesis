@@ -8,8 +8,9 @@
 %       info(1,:): clustering based on person.
 %       info(2,:): clustering based on exercise.
 %       info(3,:): clustering based on execution type.
-Use4D = true;
-
+if exist('Use4D','var') == 0
+    Use4D = false;
+end
 if Use4D expsz = 4; else expsz = 3; end
 if exist('Yn','var') == 0 || length(size(Yn)) ~= expsz
     if Use4D

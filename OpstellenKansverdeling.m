@@ -1,7 +1,8 @@
-%Calculate a probability distribution proportional to a approximation of
+%OPSTELLENKANSVERDELING: Calculate a probability distribution proportional to a approximation of
 %   the column norm of a distance tensor.
 %parameters:
 %   D: a distance tensor. 
+%   options.am: amount of retries for the initialy chosen element.
 %returns:
 %   p: probability distribution where each entry is proportional to the
 %   relative norm of the corresponding fiber of D.
@@ -10,7 +11,6 @@ function p = OpstellenKansverdeling(D,options)
     arguments
         D
         options.am (1,1) {mustBeNumeric} = 10
-        options.slice (1,1) {mustBeNumeric} = 0
     end
     sz = size(D);
     slicesz = sz(1:2);

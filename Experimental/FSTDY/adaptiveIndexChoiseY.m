@@ -1,5 +1,5 @@
 %ADAPTIVEINDEXCHOISE adaptively chose indiches for FSTD algorithm.
-% Indiches will be chosen based on the approximation error of the
+% Indiches will be chosen based on the relative approximation error of the
 % previously chosen fibers. 
 %parameters:
 %   Y: Tensor to which FSTD is applied.
