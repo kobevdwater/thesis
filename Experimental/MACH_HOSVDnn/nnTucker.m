@@ -3,7 +3,7 @@ function [U,G] = nnTucker(Y,size_core)
     Ut = {};
     for i=1:length(size_core)
         [A,~] = nnmf(tens2mat(Y,i),size_core(i));
-        Ut{1,i} = A';
+        Ut{1,i} = pinv(A);
         U{1,i} = A;
     end
     G = lmlragen(Ut,Y);

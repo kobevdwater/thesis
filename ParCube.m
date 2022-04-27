@@ -18,7 +18,7 @@ function U = ParCube(X,sr,options)
         sr (1,1) {mustBeNumeric} = 1
         options.intact (1,1) {mustBeNumericOrLogical} = false
         options.distance (1,1) logical = true
-        options.k (1,1) {mustBeNumeric} = 10
+        options.k (1,1) {mustBeNumeric} = 15
     end
     sz = size(X);
     [Xs,IJK,originalsz] = BiasedSample(X,sr,'intact',options.intact,'distance',options.distance);

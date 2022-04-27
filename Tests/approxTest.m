@@ -37,12 +37,13 @@ function SSEmean = approxTest(k,T,Td,Tp,methods,options)
         options.Tm = false
         options.amount {mustBeInteger,mustBeNonzero, mustBePositive} = 10
         options.show = true
+        options.tensorNames = false
     end
     if options.sinterval
         sinterval = options.sinterval;
     else
         sinterval = logspace(-2.5,-1,options.amount);
     end
-    SSEmean = SSEPrTest(k,T,Td,Tp,methods,@getApproxClusters,sinterval,'retries',options.retries,'Tm',options.Tm,'show',options.show,'expected',options.expected);
+    SSEmean = SSEPrTest(k,T,Td,Tp,methods,@getApproxClusters,sinterval,'retries',options.retries,'Tm',options.Tm,'show',options.show,'expected',options.expected,'tensorNames',options.tensorNames);
 end
 

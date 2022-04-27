@@ -1,5 +1,7 @@
 %Building M: tensor containing the ozon data based on the longitude and
 %latitude from 1970 to 2022. 
+% removing poles because of lots of missing data, and because a lot of data
+% is similar for a large range of longitudes.
 % Builds 2 tensors:
 %   Mo: compairs longitudes. Mo(i,j,k) = d(a_ki,a_kj)
 %   Ma: compairs latitudes. Ma(i,j,k) = d(a_ik,a_jk)
@@ -10,8 +12,12 @@
 %   Multi-Sensor Reanalysis (MSR) of total ozone, version 2.
 %   Dataset. Royal Netherlands Meteorological Institute (KNMI), 2015.
 %   doi:10.21944/temis-ozone-msr2
+%used software:
+%   John D'Errico (2022). 
+%       inpaint_nans (https://www.mathworks.com/matlabcentral/fileexchange/4551-inpaint_nans), 
+%       MATLAB Central File Exchange. Retrieved March 11, 2022.
 function [Mo,Ma,Mt] = buildingM()
-    Dat = ncread('C:\Users\kobev\Downloads\MSR-2.nc','Average_O3_column');
+    Dat = ncread('.\datasets\Ozon\MSR-2.nc','Average_O3_column');
     %removing NaN with a script from:  John D'Errico (2022). 
     %   inpaint_nans (https://www.mathworks.com/matlabcentral/fileexchange/4551-inpaint_nans), 
     %   MATLAB Central File Exchange. Retrieved March 11, 2022.
@@ -27,7 +33,6 @@ function [Mo,Ma,Mt] = buildingM()
     %building Mo: compairing longitudes.
     Mo = zeros(szo);
     for k=1:szo(3)
-        k
         for i=1:szo(1)
             a1 = squeeze(Dat(i,k,:));
             for j=1:szo(2)

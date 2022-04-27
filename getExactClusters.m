@@ -6,6 +6,23 @@
 %       U: factor matrices of the tucker decomposition.
 %       C: factor matrices of the CP decomposition.
 %   k: amount of clusters.
+%Supported methods:
+%   Tucker1: using a Tucker decomposition and ClusterOnTucker1 
+%   Tucker2: using a Tucker decomposition and ClusterOnTucker2 
+%   Tucker3: using a Tucker decomposition and ClusterOnTucker3 
+%   Tucker1P: using a Tucker decomposition and ClusterOnTucker1 for
+%       clustering the third mode.
+%   CP1: using a CP decomposition and ClusterOnCP.
+%   CP2: using a CP decomposition and ClusterOnCP2.
+%   CPnn1: using a non-negative CP decomposition and ClusterOnCP.
+%   NNMF: using a non-negative matrix factorization and ClusterOnCP.
+%   SVD: using a svd matrix composition and ClusterOnCP.
+%   BestMatrix: chosing the best matrix clustering based on the SSET.
+%   Random: random clusters.
+%   SFC: Using spectral clustering with the similarity matrix from SFC.
+%   Venu: Using spectral clustering with the similarity matrix from Venu.
+%   VenuP: Using spectral clustering with the similarity matrix from Venu
+%       to cluster the third mode.
 function Clusters = getExactClusters(method,R,decomp,k)
     switch method
         case "Tucker1"
@@ -27,8 +44,8 @@ function Clusters = getExactClusters(method,R,decomp,k)
             Clusters = clusterOnCP(decomp.C{1,1},k);
         case "CP2"
             Clusters = clusterOnCP2(decomp.C{1,1},k);
-        case "CPN"
-            C = cpd(decomp.Y,R);
+        case "CPnn1"
+            C = cp_nmu(tensor(decomp.Y),R);
             Clusters = clusterOnCP(C{1,1},k);
         case "NNMF"
             M = tens2mat(decomp.Y,1);
@@ -41,11 +58,6 @@ function Clusters = getExactClusters(method,R,decomp,k)
         case "Random"
             [I,~,~] = size(decomp.Y);
             Clusters = randi(k,1,I);
-        case "Ex"
-            [I,~,~] = size(decomp.Y);
-            Clusters = info(2,1:I);
-        case "Weighted"
-            Clusters = SSEWeightedClustering(decomp.Y,k,10);
         case "BestMatrix"
             Clusters = BestMatrixSSEClustering(decomp.Y,k,10);
         case "Venu"

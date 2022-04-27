@@ -23,7 +23,8 @@ for i=1:100
         end
     end
 end
-Ys = {Y1,Y2,Yn};
+% Ys = {Y1,Y2,Yn};
+Ys = {Yn};
 Ynames = ["Y1","Y2","Yn"];
 result = zeros(length(Ys),length(sinterval),length(methods),retries);
 

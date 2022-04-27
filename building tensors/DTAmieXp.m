@@ -70,7 +70,7 @@ classdef DTAmieXp < handle
             for i = [I J]
                 if isempty(obj.Iset(i).data)
                     item = sprintf('/skeleton_%d/block0_values',obj.indexset(i));
-                    obj.Iset(i).data = h5read('amie/amie-kinect-data.hdf',item);
+                    obj.Iset(i).data = h5read('./datasets/Amie/amie-kinect-data.hdf',item);
                 end
             end
  

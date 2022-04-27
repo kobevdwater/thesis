@@ -12,7 +12,7 @@ function SSEmean = ExactTest(k,T,Td,Tp,Methods,options)
     if options.Rrange
         Rrange = options.Rrange;
     else
-        Rrange = 2:10;
+        Rrange = :10;
     end
     SSEmean = SSEPrTest(k,T,Td,Tp,Methods,@getExactClusters,Rrange,'retries',options.retries,'Tm',options.Tm,'amount',options.amount,'show',options.show,'expected',options.expected,'precompDecomp',true);
 %     SSEmean = SSEPrTest(k,T,Td,Tp,Methods,@getExactClusters,Rrange,'retries',options.retries,'Tm',options.Tm,'amount',options.amount,'show',options.show,'expected',options.expected);

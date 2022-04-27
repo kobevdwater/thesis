@@ -11,4 +11,5 @@ function Clustering = BestMatrixSSEClustering(Y,k,r)
     end
     [~,I] = min(result);
     Clustering = clusters(I,:);
+    size(Clustering)
 end

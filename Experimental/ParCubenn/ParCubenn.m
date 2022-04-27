@@ -40,6 +40,7 @@ function U = ParCubenn(X,sr,options)
             j = j+1;
         end
     end
+%     U{1,1} = U{1,1}.*Us.lambda';
 end
 
 

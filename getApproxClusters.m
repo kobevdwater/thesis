@@ -29,54 +29,42 @@
 %   SOLSFC: Unsing SOLRADM and SFC
 %   Random: return random clusters.
 %   XYZ: for sensors. Groups sensors in the x,y,z directions.
+%Eperimental methods:
+%   VenuD: using venuflattening th cluster based on the distance matrix.
+%   VenuRa: using Venu, but using random fibers.
+%   VenuSp: using Venu, but chosing fibers that are spread out as far as
+%       possible.
+%   FSTDX1: using FSTDX and ClusterOnTucker1.
+%   FSTDY1: using FSTDY and ClusterOnTucker1.
+%   FSTDZ1: using FSTDZ and ClusterOnTucker1.
+%   ParCubenn1: using ParCubenn and ClusterOnCP.
+%   ParCubennX1: using ParCubennX and ClusterOnCP.
+%   ParCubeX1: using ParCubeX and ClusterOnCP.
+%   MACH_HOSVDnn1: using HACH_HOSVDnn and ClusterOnTucker1.
 function Clusters = getApproxClusters(method, samplerate,tensors,k)
-    Y = tensors.Y;
-    P = tensors.P;
-%     Y = tensors;
+    if (isfield(tensors,'Y'))
+        Y = tensors.Y;
+    else
+        Y = tensors;
+    end
+    if (isfield(tensors,'P'))
+        P = tensors.P;
+    end
     sz = size(Y);
     switch method
         case "Venu"
             r = floor(samplerate*prod(sz(2:end),'all'));
             simMatrix = venuFlatten(Y,r);
             Clusters = spectralClustering(simMatrix,k);
-        case "VenuX"
-            r = floor(samplerate*prod(sz(2:end),'all'));
-            M = venuFlattenX(Y,r);
-            Clusters = kmeans(M,k);
         case "VenuP"
             %limit r to same amount as dataentries when we would use P
             %instead of Y.
             r = floor(samplerate*prod(sz(1:end),'all')/sz(3));
             simMatrix = venuFlattenP(P,r);
             Clusters = spectralClustering(simMatrix,k);
-        case "VenuD"
-            r = floor(samplerate*prod(sz(2:end),'all'));
-            [~,Dist] = venuFlatten(Y,r);
-            Clusters = spectralClustering(Dist,k,'isDist',true);
-        case "VenuRa"
-            r  = floor(samplerate*prod(sz(2:end),'all'));
-            simMatrix = venuFlatten(Y,r,'abc',1);
-            simMatrix = max(simMatrix,0);
-            Clusters = spectralClustering(simMatrix,k);
-        case "VenuSp"
-            r  = floor(samplerate*prod(sz(2:end),'all'));
-            simMatrix = venuFlatten(Y,r,"abc",2);
-            Clusters = spectralClustering(simMatrix,k);
         case "FSTD1"
             r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
             [W,Cn] = FSTD(Y,r);
-            Clusters = clusterOnTucker(W,Cn{1,1},k);
-        case "FSTDX1"
-            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
-            [W,Cn] = FSTDX(Y,r);
-            Clusters = clusterOnTucker(W,Cn{1,1},k);
-        case "FSTDY1"
-            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
-            [W,Cn] = FSTDY(Y,r);
-            Clusters = clusterOnTucker(W,Cn{1,1},k);
-        case "FSTDZ1"
-            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
-            [W,Cn] = FSTDZ(Y,r);
             Clusters = clusterOnTucker(W,Cn{1,1},k);
         case "FSTD2"
             r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
@@ -95,27 +83,18 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             Wt = turnCore(W);
             Clusters = clusterOnTucker(Wt,Cn{1,3},k);
         case "ParCube1"
-            U = ParCube(Y,samplerate^(1/(length(sz)-1)),'intact',1,'k',k);
+            U = ParCube(Y,samplerate^(1/(length(sz)-1)),'intact',1);
             Clusters = clusterOnCP(U{1,1},k);
         case "ParCube2"
             U = ParCube(Y,samplerate^(1/(length(sz)-1)),'intact',1);
-            Clusters = clusterOnCP2(U{1,1},k);
-        case "ParCubenn1"
-            U = ParCubenn(Y,samplerate^(1/(length(sz)-1)),'intact',1,'k',k);
             Clusters = clusterOnCP2(U{1,1},k);
         case "ParCubeP2"
             psr = samplerate*prod(sz,'all')/prod(size(P),'all');
             psr = min(1,psr);
             U = ParCube(P,psr^(1/(length(sz)-1)),'intact',3);
             Clusters = clusterOnCP(U{1,3},k);
-        case "ParCubeX1"
-            U1 = ParCubeX(Y,samplerate^(1/(length(sz)-1)),'intact',1,'R',k);
-            Clusters = clusterOnCP(U1,k);
-        case "ParCubeX2"
-            U1 = ParCubeX(Y,samplerate^(1/(length(sz)-1)),'intact',1,'R',k);
-            Clusters = clusterOnCP2(U1,k);
         case "MACH1"
-            [G,U] = MACH_HOSVD(Y,k,samplerate);
+            [G,U] = MACH_HOSVD(Y,15,samplerate);
             Clusters = clusterOnTucker(G,U{1,1},k);
         case "MACHP1"
             %Higher sr so amount of entries used is the same as a "normal
@@ -126,14 +105,11 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             %turning core around
             Gt = turnCore(G);
             Clusters = clusterOnTucker(Gt,U{1,3},k);
-        case "MACH21"
-            [G,U] = MACH_HOSVD(Y,k,samplerate);
-            Clusters = clusterOnTucker(G,U{1,1},k);
         case "MACH2"
-            [G,U] = MACH_HOSVD(Y,k,samplerate);
+            [G,U] = MACH_HOSVD(Y,15,samplerate);
             Clusters = clusterOnTucker2(G,U{1,1},k);
         case "MACH3"
-            [G,U] = MACH_HOSVD(Y,k,samplerate);
+            [G,U] = MACH_HOSVD(Y,15,samplerate);
             Clusters = clusterOnTucker3(G,U{1,1},k);
         case "Random"
             Clusters = randi(k,size(Y,1),1);
@@ -149,14 +125,68 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             Clusterings = getFSTDClusters(Y,r,k);
             Sim = SimFromClusterings(Clusterings);
             Clusters = spectralClustering(Sim,k);
-%         case "SOLSFCP"
-%             psr = samplerate*prod(sz,'all')/prod(size(P),'all');
-%             psr = min(1,psr);
-%             a = sqrt(psr/2);
-%             Clusterings = getSOLRADMClusters(P,a,k);
-%             size(Clusterings)
-%             Sim = SimFromClusteringsP(Clusterings);
-%             Clusters = spectralClustering(Sim,k);
+ %Experimental
+        case "VenuD"
+            r = floor(samplerate*prod(sz(2:end),'all'));
+            [~,Dist] = venuFlatten(Y,r);
+            Clusters = spectralClustering(Dist,k,'isDist',true);
+        case "VenuRa"
+            r  = floor(samplerate*prod(sz(2:end),'all'));
+            simMatrix = venuFlatten(Y,r,'abc',1);
+            simMatrix = max(simMatrix,0);
+            Clusters = spectralClustering(simMatrix,k);
+        case "VenuSp"
+            r  = floor(samplerate*prod(sz(2:end),'all'));
+            simMatrix = venuFlatten(Y,r,"abc",2);
+            Clusters = spectralClustering(simMatrix,k);
+        case "VenuSpP"
+            %limit r to same amount as dataentries when we would use P
+            %instead of Y.
+            r = floor(samplerate*prod(sz(1:end),'all')/sz(3));
+            simMatrix = venuFlattenP(P,r,"abc",2);
+            Clusters = spectralClustering(simMatrix,k);
+        case "FSTDX1"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDX(Y,r);
+            Clusters = clusterOnTucker(W,Cn{1,1},k);
+        case "FSTDY1"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDY(Y,r);
+            Clusters = clusterOnTucker(W,Cn{1,1},k);
+        case "FSTDY2"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDY(Y,r);
+            Clusters = clusterOnTucker2(W,Cn{1,1},k); 
+        case "FSTDYP1"
+            psr = samplerate*prod(sz,'all')/prod(size(P),'all');
+            psr = min(1,psr);
+            sz = size(P);
+            r = floor(sqrt(psr*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDY(P,r);
+            Wt = turnCore(W);
+            Clusters = clusterOnTucker(Wt,Cn{1,3},k);
+        case "FSTDZ1"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDZ(Y,r);
+            Clusters = clusterOnTucker(W,Cn{1,1},k);
+        case "ParCubenn1"
+            U = ParCubenn(Y,samplerate^(1/(length(sz)-1)),'intact',1,'k',15);
+            Clusters = clusterOnCP2(U{1,1},k);
+        case "ParCubeX1"
+            U = ParCubeX(Y,samplerate^(1/(length(sz)-1)),'intact',1,'k',15);
+            Clusters = clusterOnCP(U{1,1},k);
+        case "ParCubeX2"
+            U = ParCubeX(Y,samplerate^(1/(length(sz)-1)),'intact',1,'R',15);
+            Clusters = clusterOnCP2(U{1,1},k);
+        case "ParCubennX1"
+            U1 = ParCubennX(Y,samplerate^(1/(length(sz)-1)),'intact',1,'R',15);
+            Clusters = clusterOnCP(U1,k);
+        case "MACHnn1"
+            [G,U] = MACH_HOSVDX(Y,15,samplerate);
+            Clusters = clusterOnTucker(G,U{1,1},k);
+        case "MACHnan1"
+            [G,U] = MACH_HOSVDnan(Y,15,samplerate);
+            Clusters = clusterOnTucker(G,U{1,1},k);
         otherwise 
             warning('unexpected method name '+ method)
     end

@@ -19,10 +19,12 @@ function [G,U,sr] = MACH_HOSVDX(X,r,p)
     sr = sum(R,'All')/(prod(sz,"all"));
     U = {};
     Ut = {};
-    for i = 1:length(sz)
-        [A,~,~] = svds(tens2mat(Xh,i),r);
-        Ut{1,i} = A';
-        U{1,i} = A;
-    end
-    G = nnTucker(Ut,Xh);
+    core_size = r*ones(length(sz),1);
+    [U,G] = nnTucker(Xh,core_size);
+%     for i = 1:length(sz)
+%         [A,~,~] = svds(tens2mat(Xh,i),r);
+%         Ut{1,i} = A';
+%         U{1,i} = A;
+%     end
+%     G = nnTucker(Ut,Xh);
 end
