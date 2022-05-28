@@ -14,13 +14,15 @@ classdef DTAmieY4 < handle
         Iset
         Accesed
         indexset
+        amieLoc
     end
     methods
         
-        function obj =DTAmieY4()
+        function obj =DTAmieY4(amieLoc)
             obj.Sz = [180,180,75,8];
             obj.Data = NaN(obj.Sz);
             obj.Accesed = zeros(obj.Sz);
+            obj.amieLoc = amieLoc;
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:,:) = 0;
             end
@@ -75,7 +77,7 @@ classdef DTAmieY4 < handle
                     obj.Iset(index);
                     if isempty(obj.Iset(index).data)
                         item = sprintf('/skeleton_%d/block0_values',index);
-                        obj.Iset(index).data = h5read('amie/split.hdf',item);
+                        obj.Iset(index).data = h5read(obj.amieLoc+"split.hdf",item);
                     end
                 end
             end

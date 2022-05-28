@@ -5,15 +5,12 @@
 %   k: amount of clusters.
 %result:
 %   Clustering: A clustering of the first mode of Y.
-function Clustering = BestMatrixSSEClustering(Y,k,r)
+function Clustering = BestMatrixSSEClustering(Y,k,~)
     clusters = clusterTensor(Y,k);
     result = zeros(size(Y,3),1);
     for i=1:size(clusters,1)
         cluster = clusters(i,:);
-        nrm = norm(Y(:,:,i));
-        for j=1:size(Y,3)
-            result(i) = result(i)+calculateSSE(cluster,Y(:,:,j))/nrm;
-        end
+        result(i) = calculateSSET(cluster,Y);
     end
     [~,I] = min(result);
     Clustering = clusters(I,:);

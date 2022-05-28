@@ -5,7 +5,9 @@
 %       When the method used the P tensor. sampling rate will be used that
 %       result in the same amount of entries used as the Y tensor of the
 %       same dataset using the given samplerate.
-%   tensors: Struct that contains the Y and P tensors.
+%   tensors: Struct that contains the Y and P tensors. Can also be just the
+%       Y tensor. If this is the case, the methods using the P tensor cant
+%       be used.
 %   k: amount of clusters.
 %result
 %   Clusters: clustering of the first mode of tensor Y consisting of k
@@ -56,6 +58,10 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             r = floor(samplerate*prod(sz(2:end),'all'));
             simMatrix = venuFlatten(Y,r);
             Clusters = spectralClustering(simMatrix,k);
+        case "VenuF"
+            r = floor(samplerate*prod(sz(2:end),'all'));
+            [~,Feat] = venuFlatten(Y,r);
+            Clusters = spectralClustering(Feat,k,"preComputed",false);
         case "VenuP"
             %limit r to same amount as dataentries when we would use P
             %instead of Y.
@@ -96,6 +102,9 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
         case "MACH1"
             [G,U] = MACH_HOSVD(Y,15,samplerate);
             Clusters = clusterOnTucker(G,U{1,1},k);
+        case "MACHF1"
+            [G,U] = MACH_HOSVD(Y,15,samplerate);
+            Clusters = clusterOnTuckerF(G,U{1,1},k);
         case "MACHP1"
             %Higher sr so amount of entries used is the same as a "normal
             %tensor".
@@ -125,6 +134,12 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             Clusterings = getFSTDClusters(Y,r,k);
             Sim = SimFromClusterings(Clusterings);
             Clusters = spectralClustering(Sim,k);
+        case "Tm"
+            T = getApproxReconstruction("FSTD",Y,samplerate);
+            Tm = sum(T,3);
+            Tm = (Tm+Tm')/2;
+%             Tm = sum(Y,3);
+            Clusters = spectralClustering(Tm,k,"isDist",true);
  %Experimental
         case "VenuD"
             r = floor(samplerate*prod(sz(2:end),'all'));
@@ -137,8 +152,9 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             Clusters = spectralClustering(simMatrix,k);
         case "VenuSp"
             r  = floor(samplerate*prod(sz(2:end),'all'));
-            simMatrix = venuFlatten(Y,r,"abc",2);
+            [simMatrix,feat] = venuFlatten(Y,r,"abc",2);
             Clusters = spectralClustering(simMatrix,k);
+%             Clusters = spectralcluster(feat,k);
         case "VenuSpP"
             %limit r to same amount as dataentries when we would use P
             %instead of Y.
@@ -149,6 +165,11 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
             [W,Cn] = FSTDX(Y,r);
             Clusters = clusterOnTucker(W,Cn{1,1},k);
+        case "FSTDX2"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDX(Y,r);
+            Clusters = clusterOnTucker2(W,Cn{1,1},k);
+            
         case "FSTDY1"
             r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
             [W,Cn] = FSTDY(Y,r);
@@ -187,6 +208,31 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
         case "MACHnan1"
             [G,U] = MACH_HOSVDnan(Y,15,samplerate);
             Clusters = clusterOnTucker(G,U{1,1},k);
+        case "FSTDVenu"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [~,~,Co] = FSTDY(Y,r);
+            M1t = Co{1,1}'./vecnorm(Co{1,1}');
+            simMat = M1t'*M1t;
+            M1t = Co{1,2}'./vecnorm(Co{1,2}');
+            simMat = simMat+M1t'*M1t;
+            Clusters = spectralClustering(simMat,k,"isDist",false);
+        case "ParCubeD1"
+            U = ParCube(Y,samplerate^(1/(length(sz)-1)),'intact',1,'k',15);
+            Clusters = clusterOnCP(U{1,1},k,U{1,2});
+        case "FSTDYD1"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDY(Y,r);
+            Clusters = clusterOnTucker(W,Cn{1,1},k,Cn{1,2});
+        case "MACHD1"
+            [G,U] = MACH_HOSVD(Y,15,samplerate);
+            Clusters = clusterOnTucker(G,U{1,1},k,U{1,2});
+        case "FSTDYD2"
+            r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
+            [W,Cn] = FSTDY(Y,r);
+            Clusters = clusterOnTucker2(W,Cn{1,1},k,Cn{1,2});
+        case "MACHD2"
+            [G,U] = MACH_HOSVD(Y,15,samplerate);
+            Clusters = clusterOnTucker2(G,U{1,1},k,U{1,2});
         otherwise 
             warning('unexpected method name '+ method)
     end

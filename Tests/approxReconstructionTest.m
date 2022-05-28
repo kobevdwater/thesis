@@ -1,12 +1,12 @@
 %Test the different sampling based decompositions on there ability to
 %reconstruct the tensor. Measures the frob. norm of the difference between
-%the tensors ifo the samplerate
+%the tensors ifo the samplerate.
 %Tests on 3 different tensors: 
-%   Y1: a tensor of size (100,100,100) constructed from a random tensor
+%   Y1: a tensor of size (100,100,100) constructed from a random Tucker
 %       decomposition with core of size (10,10,10).
 %   Y2: a tensor of size(100,100,100) for which 
 %       Y2(i,j,k) = 1/sqrt(i^2+j^2+k2).
-%   Y3: the Y tensor of the amie dataset.
+%   Yn: the tensor given as argument.
 % Tensors 1 and 2 are based on the tensors used in: 
 %   Generalizing the column–row matrix decomposition
 %   to multi-way arrays by Caiafa and Cichocki
@@ -23,9 +23,10 @@ for i=1:100
         end
     end
 end
-% Ys = {Y1,Y2,Yn};
-Ys = {Yn};
-Ynames = ["Y1","Y2","Yn"];
+
+Ys = {Y1,Y2,Yn};
+% Ys = {Y1};
+Ynames = ["Y1","Y2","R"];
 result = zeros(length(Ys),length(sinterval),length(methods),retries);
 
 for y = 1:length(Ys)
@@ -35,7 +36,8 @@ for y = 1:length(Ys)
         for i=1:retries
             for m=1:length(methods)
                 Approx = getApproxReconstruction(methods(m),Y,sinterval(si));
-                result(y,si,m,i) = frob((Y-Approx))/frob(Y);
+%                 result(y,si,m,i) = frob((Y/frob(Y)-Approx/frob(Approx)));
+                result(y,si,m,i) = 1+eps(1)-dot(Y(:),Approx(:))/(frob(Y)*frob(Approx));
             end
         end
     end

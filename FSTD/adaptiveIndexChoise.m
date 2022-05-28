@@ -3,7 +3,7 @@
 % previously chosen fibers. 
 %parameters:
 %   Y: Tensor to which FSTD is applied.
-%   r1,r2,r3: amount of fibers/indices chosen in the corresponding modes.
+%   r: amount of fibers/indices chosen in each mode.
 %returns
 %   I,J,K: chosen indices.
 function IJK = adaptiveIndexChoise(Y,r)

@@ -12,12 +12,17 @@ function Clusters = spectralClustering(Dist,k,options)
         Dist
         k (1,1) {mustBeNonnegative,mustBeNumeric}
         options.isDist (1,1) {mustBeNumericOrLogical} = false
+        options.preComputed = true
     end
-    A = Dist;
-    if options.isDist
-        mx = max(Dist,[],"all");
-        Dist = Dist./mx;
-        A = exp(-Dist.^2/2);
+    if options.preComputed
+        A = Dist;
+        if options.isDist
+            mx = max(Dist,[],"all");
+            Dist = Dist./mx;
+            A = exp(-Dist.^2/2);
+        end
+        Clusters = spectralcluster(A,k,'Distance','precomputed','LaplacianNormalization','symmetric');
+    else 
+        Clusters = spectralcluster(Dist,k);
     end
-    Clusters = spectralcluster(A,k,'Distance','precomputed','LaplacianNormalization','symmetric');
 end

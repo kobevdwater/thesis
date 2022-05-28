@@ -14,12 +14,14 @@ classdef DTAmieP4 < handle
         Iset
         Accesed
         indexset
+        amieLoc
     end
     methods
         
-        function obj = DTAmieP4()
+        function obj = DTAmieP4(amieLoc)
             obj.Sz = [75,75,180,8];
             obj.Data = NaN(obj.Sz);
+            obj.amieLoc = amieLoc;
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:) = 0;
             end
@@ -84,7 +86,7 @@ classdef DTAmieP4 < handle
                     index = 100*kk+l;
                     if isempty(obj.Iset(index).data)
                         item = sprintf('/skeleton_%d/block0_values',index);
-                        obj.Iset(index).data = h5read('amie/split.hdf',item);
+                        obj.Iset(index).data = h5read(obj.amieLoc + "split.hdf",item);
                     end
                 end
             end
@@ -122,7 +124,6 @@ classdef DTAmieP4 < handle
             %Calculate the data that has to be calculated.
             newData = zeros(n,1);
             parfor i=1:n
-%                 dis = dtwDistance(normalize(toCalc(i).a1),normalize(toCalc(i).a2),5);
                 dis = dtw(normalize(toCalc(i).a1),normalize(toCalc(i).a2));
                 newData(i) = dis;
             end

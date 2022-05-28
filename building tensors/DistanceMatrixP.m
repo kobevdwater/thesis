@@ -1,6 +1,7 @@
 %DISTANCEMATRIXP class representing a distance matrix. Using this class
 %   allows us to calculate values when they are needed. Uses a parfor loop
 %   to speed up calculation. Requires parallel computing toolbox.
+% Depricated: to big to fit in memory.
 classdef DistanceMatrixP < handle
     properties
         Sz

@@ -15,7 +15,7 @@
 %segmentation by Govindu.
 %
 % See also OPSTELLENKANSVERDELING
-function [simMat,DisMat] = venuFlatten(Y,r,options)
+function [simMat,Features] = venuFlatten(Y,r,options)
     arguments
         Y
         r (1,1) {mustBeNumericOrLogical} = false;
@@ -40,7 +40,6 @@ function [simMat,DisMat] = venuFlatten(Y,r,options)
     M = tens2mat(Y,1);
     M = M(:,I);
     M1t = M'./vecnorm(M');
-    D = pdist(M1t','euclidean');
-    DisMat = squareform(D);
+    Features = M1t';
     simMat = M1t'*M1t;
 end

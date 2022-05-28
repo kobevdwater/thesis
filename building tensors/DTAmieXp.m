@@ -14,18 +14,21 @@ classdef DTAmieXp < handle
         Iset
         Accesed
         indexset
+        amieLoc
     end
     methods
         
-        function obj =DTAmieXp()
+        function obj =DTAmieXp(amieLoc)
             obj.Sz = [180,180,25,3];
             obj.Data = NaN(obj.Sz);
             obj.Accesed = zeros(obj.Sz);
+            obj.amieLoc = amieLoc;
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:,:) = 0;
             end
             obj.Iset(obj.Sz(1)).data = [];
             obj.indexset = 1:185; 
+            %remove bad data: containing less than 8 repetitions
             obj.indexset(152) = []; %6
             obj.indexset(151) = []; %1
             obj.indexset(71) = []; %6
@@ -70,7 +73,7 @@ classdef DTAmieXp < handle
             for i = [I J]
                 if isempty(obj.Iset(i).data)
                     item = sprintf('/skeleton_%d/block0_values',obj.indexset(i));
-                    obj.Iset(i).data = h5read('./datasets/Amie/amie-kinect-data.hdf',item);
+                    obj.Iset(i).data = h5read(obj.amieLoc+ "amie-kinect-data.hdf",item);
                 end
             end
  
@@ -106,7 +109,6 @@ classdef DTAmieXp < handle
             %Calculate the data that has to be calculated.
             newData = zeros(n,1);
             parfor i=1:n
-%                 dis = prunedDTW(normalize(toCalc(i).a1(1:200)),normalize(toCalc(i).a2(1:200)),25);
                 dis = dtw(normalize(toCalc(i).a1(1:4:end)),normalize(toCalc(i).a2(1:4:end)))
                 newData(i) = dis;
             end

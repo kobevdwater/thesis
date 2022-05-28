@@ -1,3 +1,17 @@
+%GETRESIDUAL: get the difference between the tensor Y and the approximation
+% Yh on one fiber. Uses the pinverse to calculate the factormatrices.
+%parameters:
+%   Y: the tensor that is to be approximated
+%   IJK: a {1,N} structure containing the fiber that where previously chosen for
+%       each mode.
+%   mode: The mode of the resulting fiber.
+%returns:
+%   E = (Y-Yh)(I1,I2,...,Im-1,:,Im+1,...,IN)
+%   where:
+%       Yh: The approximation of Y created by FSTD when using the fibers in
+%           IJK.
+%       In: The last index in IJK{1,n}
+%       m: the given mode. 
 function E = getresidualX(Y,IJK,mode)
     sz = size(Y);
     W = Y(IJK{:});

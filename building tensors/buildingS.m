@@ -1,4 +1,18 @@
-%Create climate tensor
+%Create climate tensor compairing the temerature in cities in a specified
+%   time interval.
+%parameters:
+%   options.start: start year of the data used.
+%   options.end: last year of the data used.
+%   options.allCities: 
+%       false: only use 100 biggerst cities.
+%       true: use all 3448 cities.
+%result:
+%   S: tensor compairing cities. S(i,j,k): difference between city i and j
+%       in year k.
+%   Sp: tensor compairing years. Sp(i,j,k): difference between year i and j
+%       in city k.
+%   Sm: matrix in which all years are taken together. Sm(i,j): difference
+%       between cities i and j from the start till the end date.
 %Data from: Climate Change: Earth Surface Temperature Data
 % https://redivis.com/datasets/1e0a-f4931vvyg?v=1.0
 function [S,Sp,Sm] = buildingS(options)
@@ -26,6 +40,7 @@ sz = [length(Cit),length(Cit),theend-start];
 S = zeros(sz);
 Series = {};
 Seriesl = {};
+%Get the needed timeseries from the dataset.
 for i=1:length(Cit)
     I1 = find(G{:,4} == Cit(i));
     Gi = G(I1,:);
@@ -38,17 +53,19 @@ for i=1:length(Cit)
         Series{i,k} = a;
     end
 end
+%building S
 for k=1:theend-start
     for i=1:length(Cit)
         a1 = Series{i,k};
         for j=1:length(Cit)
             a2 = Series{j,k};
             %Skiping cities with the same name by taking first found year.
-            S(i,j,k) = norm(a1(1:12)-a2(1:12));%./max(norm(a1(1:12)),norm(a2(1:12)));
+            S(i,j,k) = norm(a1(1:12)-a2(1:12));
         end
     end
 end
 
+%building Sp
 tm = theend-start;
 sz = [tm,tm,length(Cit)];
 Sp = zeros(sz);
@@ -71,6 +88,7 @@ for i=1:length(Cit)
     end
 end
 
+%building Sm
 sz = [length(Cit)];
 Sm = zeros(sz);
 for i=1:length(Cit)

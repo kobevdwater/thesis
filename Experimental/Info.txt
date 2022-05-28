@@ -7,4 +7,4 @@ Most of them are alternatives to functions that are used in the main methods.
 - ParCubenn: Uses a non-negative CP decomposition.
 - ParCubennX: Uses an approximation of the non-negative CP decomposition in which only the first mode is decomposed by useing a non-negative matrix factorization.
 - MACH_HOSVDnn: Uses a non-negative Tucker decomposition
-.
+- MACH_HOSVDnan: calculates tucker decomposition without taking zeros into account.

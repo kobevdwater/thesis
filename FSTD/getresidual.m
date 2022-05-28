@@ -34,12 +34,10 @@ function E = getresidual(Y,IJK,mode)
             A = tens2mat(W,i)';
             b = Ci{1,i}';
             U{1,i} = (A\b)';
-%             U{1,i} = Ci{1,i}*Wi{1,i};
         else
             A = tens2mat(W,i)';
             b = Ci{1,i}(indices{1,i},:)';
             U{1,i} = (A\b)';
-%             U{1,i} = Ci{1,i}(indices{1,i},:)*Wi{1,i};
         end
     end
     indices{1,mode} = 1:sz(mode);

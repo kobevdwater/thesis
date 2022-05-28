@@ -9,6 +9,8 @@
 % based on paper: Active Regression via Linear-Sample Sparsification. Chen.
 %Implementation based on work of Mathias Pede.
 function V = regression(U,D,r)
+warning ('off','all');
+
     ep = 2;
     [n,k] = size(U);
     p = ones(1,n)./n;
@@ -44,6 +46,8 @@ function V = regression(U,D,r)
     for i=1:n
         V(:,i) = Us\Y(:,i);
     end
+warning ('on','all');
+
 end
 
 

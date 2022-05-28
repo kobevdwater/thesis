@@ -2,10 +2,11 @@
 %Y(i,j,k) = distance between the sensors i and j of person k.
 %The data in the tensor can be accesed via normal indexing. 
 %   e.g. Y(:,1,1) will result in a fiber.
-%The percentage of the elements that are calculated can be calculated via 
+%The percentage of the elements that are accesed can be calculated via 
 %   Y.getSampleRate()
 %   Indexing can be used to find the samplerate of that part of the tensor.
 %   e.g. Y.getSampleRate(:,:,1) will give the sampling in the first slice.
+%The samplingrate can be reset by using Y.resetSamplingrate().
 classdef DTAmieP < handle
     properties
         Sz
@@ -13,19 +14,22 @@ classdef DTAmieP < handle
         Iset
         Accesed
         indexset
+        amieLoc
     end
     methods
         
-        function obj = DTAmieP()
+        function obj = DTAmieP(amieLoc)
             obj.Sz = [75,75,180];
             obj.Data = NaN(obj.Sz);
             obj.Accesed = zeros(obj.Sz(1));
+            obj.amieLoc = amieLoc;
 
             for i = 1:obj.Sz(1)
                 obj.Data(i,i,:) = 0;
             end
             obj.Iset(obj.Sz(3)).data = [];
             obj.indexset = 1:185; 
+            %Removing bad data (contains less than 8 repetitions)
             obj.indexset(152) = []; %6
             obj.indexset(151) = []; %1
             obj.indexset(71) = []; %6
@@ -48,7 +52,7 @@ classdef DTAmieP < handle
             [varargout{1:nargout}] = builtin('size',this.Data,varargin{:});
         end
 
-        function [I,J,K] = parseIndices(obj,indices)
+        function IJK = parseIndices(obj,indices)
             IJK = {};
             for i = 1:length(indices)
                 if strcmp(indices{1,i},':')
@@ -57,16 +61,16 @@ classdef DTAmieP < handle
                     IJK{i} = indices{1,i};
                 end
             end
-            I = IJK{1};J=IJK{2};K=IJK{3};
         end
         
         function data = calcData(obj,indices)
-            [I,J,K] = obj.parseIndices(indices);
+            IJK = obj.parseIndices(indices);
+            [I,J,K] = IJK{:};
             obj.Accesed(I,J,K) = 1;
             for k = K
                 if isempty(obj.Iset(k).data)
                     item = sprintf('/skeleton_%d/block0_values',obj.indexset(k));
-                    obj.Iset(k).data = h5read('amie/amie-kinect-data.hdf',item);
+                    obj.Iset(k).data = h5read(obj.amieLoc+"amie-kinect-data.hdf",item);
                 end
             end
  
@@ -79,12 +83,15 @@ classdef DTAmieP < handle
                 for j=1:length(J)
                     for k=1:length(K)
                         if isnan(obj.Data(I(i),J(j),K(k)))
+                            %element is not calculated yet. 
                             n = n+1;
                             toCalc(n).a1 = obj.Iset(K(k)).data(I(i),:);
                             toCalc(n).a2 = obj.Iset(K(k)).data(J(j),:);
                             toCalc(n).ijk = [i,j,k];
                             obj.Data(J(j),I(i),K(k)) = -1;
                         elseif obj.Data(I(i),J(j),K(k)) == -1
+                            %element is not calculated yet, but symetric
+                            %element is going to be calculated. 
                             m=m+1;
                             toWrite(m).ijk = [i,j,k];
                         else
@@ -99,7 +106,6 @@ classdef DTAmieP < handle
                 a1 = normalize(a1);
                 a2 = toCalc(i).a2(1:4:end);
                 a2 = normalize(a2);
-%                 dis = dtwDistance(a1,a2,30);
                 dis = dtw(a1,a2);
                 newData(i) = dis;
             end
@@ -128,7 +134,7 @@ classdef DTAmieP < handle
         end
         
         function zr = resetSamplingRate(obj)
-            obj.Accesed = zeros(obj.Sz(1),obj.Sz(2),obj.Sz(3));
+            obj.Accesed = zeros(obj.Sz);
             zr = 0;
         end
     end

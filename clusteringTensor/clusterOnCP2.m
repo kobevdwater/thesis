@@ -6,6 +6,7 @@
 %returns:
 %   clusters: The clustering of the given mode.
 function clusters = clusterOnCP2(A1,k)
-    clusters = kmeans(A1,k);
-
+    M = A1';
+    M = M./vecnorm(M);
+    clusters = kmeans(M',k);
 end

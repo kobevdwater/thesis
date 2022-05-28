@@ -2,11 +2,12 @@
 %latitude from 1970 to 2022. 
 % removing poles because of lots of missing data, and because a lot of data
 % is similar for a large range of longitudes.
-% Builds 2 tensors:
+% Builds 3 tensors:
 %   Mo: compairs longitudes. Mo(i,j,k) = d(a_ki,a_kj)
 %   Ma: compairs latitudes. Ma(i,j,k) = d(a_ik,a_jk)
 %   where   a_ij = timeseries at position i,j (latitude, longitude).
 %           d: distance function. Here the Euclidian distance is used.
+%   Mt: data tensor. Mt(i,j,k): ozon at position (i,j) at time k.
 %used dataset:
 %   Van der A, R. J., Allaart, M. A. F., and Eskes, H. J.,
 %   Multi-Sensor Reanalysis (MSR) of total ozone, version 2.
@@ -18,10 +19,11 @@
 %       MATLAB Central File Exchange. Retrieved March 11, 2022.
 function [Mo,Ma,Mt] = buildingM()
     Dat = ncread('.\datasets\Ozon\MSR-2.nc','Average_O3_column');
+    %removing poles
+    Dat = Dat(:,6:355,:);
     %removing NaN with a script from:  John D'Errico (2022). 
     %   inpaint_nans (https://www.mathworks.com/matlabcentral/fileexchange/4551-inpaint_nans), 
     %   MATLAB Central File Exchange. Retrieved March 11, 2022.
-    Dat = Dat(:,6:355,:);
     for i= 1:size(Dat,1)
         for j=1:size(Dat,2)
             Dat(i,j,:) = inpaint_nans(Dat(i,j,:));
@@ -30,6 +32,7 @@ function [Mo,Ma,Mt] = buildingM()
     sz = size(Dat);
     szo = [sz(1),sz(1),sz(2)];
     sza = [sz(2),sz(2),sz(1)];
+   
     %building Mo: compairing longitudes.
     Mo = zeros(szo);
     for k=1:szo(3)
@@ -41,10 +44,10 @@ function [Mo,Ma,Mt] = buildingM()
             end
         end
     end
+    
     %building Ma: compairing latitudes.
     Ma = zeros(sza);
     for k=1:sza(3)
-        k
         for i=1:sza(1)
             a1 = squeeze(Dat(k,i,:));
             for j=1:sza(2)

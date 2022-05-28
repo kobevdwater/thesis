@@ -70,6 +70,9 @@ function SSEmean = SSEPrTest(ks,T,Td,Tp,methods,clusterFunction,evalPoints,optio
                     mt = sub2ind([length(methods),amTensors],m,tens);
                     for k=1:length(ks)
                         Clusters = clusterFunction(methods(m),evalPoints(si),decomp,ks(k));
+                        if sum(isnan(Clusters)) > 0
+                            warning("Found Clusters contain Nan.")
+                        end
                         if expected
                             [pr,rc] = BCubed(Clusters,expected);
                             PRresult(:,si,mt,i) = PRresult(:,si,mt,i)+ [pr;rc];
