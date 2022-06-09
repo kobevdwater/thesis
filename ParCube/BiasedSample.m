@@ -27,16 +27,20 @@ function [Xsmall, IJK,Ssz] = BiasedSample(X,sr,options)
     pi = {};
     if options.distance
         p = OpstellenKansverdeling(X);
+        %for each mode calculate the chance it will be sampled for each
+        %fiber.
         for i=2:length(sz)
             pi{1,i} = sum(tens2mat(p,i-1),2);
         end
         pi{1,1} = pi{1,2};
     else
+
         for i=1:length(sz)
             pi{1,i} = vecnorm(tens2mat(X,i),2,2);
         end
     end
     IJK = {};
+    % Chosing fibers in each direction.
     for i=1:length(sz)
         IJK{1,i} = datasample(1:sz(i),Ssz(i),'Weights',pi{1,i},'Replace',false);
     end

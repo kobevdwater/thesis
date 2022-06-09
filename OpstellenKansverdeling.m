@@ -17,6 +17,7 @@ function p = OpstellenKansverdeling(D,options)
     n = sz(1);
     k = sz(2);
     othersz = sz(3:end);
+    % if input is 2d: matlab complains. Make into 3d tensor with one slice.
     if length(sz) == 2
         othersz=[1];
     end
@@ -34,6 +35,8 @@ function p = OpstellenKansverdeling(D,options)
         rowMean = 1/k*sum(Di(is,:).^2);
         p(:,i) = Di(:,js).^2+Di(is,js).^2+rowMean;
     end
-    p = p./sum(p,1);
+    p = sqrt(p);
+    %Normalizing every slice. 
+%     p = p./sum(p,1);
     p = p./sum(p,"all");
 end 

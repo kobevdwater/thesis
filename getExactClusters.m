@@ -86,6 +86,10 @@ function Clusters = getExactClusters(method,R,decomp,k)
             Clusterings = clusterTensor(decomp.Y,k);
             Sim = SimFromClusterings(Clusterings);
             Clusters = spectralClustering(Sim,k);
+        case "Flatten"
+            D = sum(decomp.Y,3:length(size(decomp.Y)));
+            Clusters = spectralClustering(D,k,"isDist",true);
+
         otherwise
             error('unexpected method name: '+method);
     end

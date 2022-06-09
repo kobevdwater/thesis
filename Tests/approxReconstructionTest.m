@@ -24,20 +24,25 @@ for i=1:100
     end
 end
 
-Ys = {Y1,Y2,Yn};
-% Ys = {Y1};
+% Ys = {Y1,Y2,Yn};
+Ys = {Yn};
+% Ys = {Y2,Yn};
 Ynames = ["Y1","Y2","R"];
 result = zeros(length(Ys),length(sinterval),length(methods),retries);
 
 for y = 1:length(Ys)
     Y = Ys{y};
-    nrm = frob(Y);
+%     nrm = frob(Y);
     for si = 1:length(sinterval)
         for i=1:retries
             for m=1:length(methods)
                 Approx = getApproxReconstruction(methods(m),Y,sinterval(si));
 %                 result(y,si,m,i) = frob((Y/frob(Y)-Approx/frob(Approx)));
-                result(y,si,m,i) = 1+eps(1)-dot(Y(:),Approx(:))/(frob(Y)*frob(Approx));
+                norm_prod = frob(Y)*frob(Approx);
+                dt = dot(Y(:),Approx(:))./norm_prod;
+
+                result(y,si,m,i) = 1-dt;
+%                 result(y,si,m,i) = (norm_prod.^2-dt^2)/((norm_prod+dt)*norm_prod);
             end
         end
     end
@@ -45,6 +50,6 @@ end
 mean = sum(result,4)./retries;
 for i=1:length(Ys)
     figure;title(Ynames(i));
-    loglog(sinterval,squeeze(mean(i,:,:)));
+    semilogy(sinterval,squeeze(mean(i,:,:)));
     legend(methods);
 end

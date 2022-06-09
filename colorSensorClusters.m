@@ -3,6 +3,7 @@
 %parameters: 
 %   cl: a clustering of the sensors.
 %   SensorPositions: the position of the sensors.
+%       See HumanshapeFinder
 function colorSensorClusters(cl,SensorPositions)
     lnspecs = ["r+","g+",'b+','c+','m+','y+',"r*","g*",'b*','c*','m*','y*'];
     image = imread("./data/man-shape.png");

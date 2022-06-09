@@ -5,8 +5,7 @@
 %   p: probablility distribution which is an approximation of the relative
 %       column norms.
 %   k: rank of the resulting approximation.
-%   ep: parameter specifying how accurate the approximation has to be.
-%       Lower values will result in a higher sampling-rate of D.
+%   r: amount of rows sampled.
 %returns:
 %   U: approximation of the first k left singular vectors of D.
 %based on thesis of Mathias Pede.

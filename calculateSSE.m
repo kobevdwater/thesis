@@ -1,4 +1,4 @@
-%CALCULATESSE: calculate SSE of a clustering. 
+%CALCULATESSE: calculate SSE of a clustering.
 %parameters: 
 %   clustering: clusters of objects. 
 %   D: the distance matrix on which the SSE has to be calculated.

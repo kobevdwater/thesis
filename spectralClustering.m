@@ -2,11 +2,12 @@
 %       matrix and the spectral clustering method.
 %parameters:
 %   Dist: Distance or similarity matrix (depending on type parameter)
-%   dim: dim. of the used features.
 %   k: nb of clusters.
+%   options.isDist: true if the given Dist matrix is a distance matrix.
+%       false if it is a similarity matrix.
+%   option.preComputed: true if the the Dist matrix 
 %returns:
 %   Clusters: clustering of the instances.
-%based on paper: On Spectral Clustering: Analysis and an algorithm. Ng
 function Clusters = spectralClustering(Dist,k,options)
     arguments
         Dist

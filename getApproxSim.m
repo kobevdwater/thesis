@@ -6,7 +6,7 @@
 %result
 %   Sim: Similarity matrix of the first mode of the tensor.
 %Supported methods:
-%   Venu.
+%   Venu
 %   FSTD
 %   ParCube
 %   MACH
@@ -19,10 +19,10 @@
 %   FSTDY: using fibers chosen with largest relative error
 %   FSTDZ: using fibers chosen based on a distribution proportional to
 %       relative error.
-%   ParCubenn
-%   ParCubennX
-%   ParCubeX
-%   MACH_HOSVDnn
+%   ParCubenn: use a non-negative CP decomposition.
+%   ParCubennX: use a non-negative approximation of the first factor matrix of the CP decomposition. 
+%   ParCubeX: using random indices.
+%   MACH_HOSVDnn: using a non-negative tucker decomposition.
 function Sim = getApproxSim(method, samplerate,tensors,k)
     if (isfield(tensors,'Y'))
         Y = tensors.Y;
@@ -74,6 +74,9 @@ function Sim = getApproxSim(method, samplerate,tensors,k)
             a = sqrt(samplerate/2);
             Clusterings = getSOLRADMClusters(Y,a,k);
             Sim = SimFromClusterings(Clusterings);
+        case "FSTDFlatten"
+            rec = getApproxReconstruction("FSTD",Y,samplerate);
+            Sim = sum(rec,3:length(size(Y)));
  %Experimental
         case "VenuRa"
             r  = floor(samplerate*prod(sz(2:end),'all'));
@@ -117,7 +120,8 @@ function Sim = getApproxSim(method, samplerate,tensors,k)
             U = ParCubeX(Y,samplerate^(1/(length(sz)-1)),'intact',1,'k',15);
             M = A1';
             M = M./vecnorm(M);
-            Sim = M'*M;        case "ParCubeX2"
+            Sim = M'*M;        
+        case "ParCubeX2"
             U = ParCubeX(Y,samplerate^(1/(length(sz)-1)),'intact',1,'R',15);
             Clusters = clusterOnCP2(U{1,1},k);
         case "ParCubennX1"

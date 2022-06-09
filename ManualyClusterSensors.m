@@ -1,5 +1,10 @@
+%Create manual clusters for the sensors of the amie dataset. 
+%results:
+%   limClusters: cluster each limb together.
+%   symetryClusters: each cluster consists of its left and right
+%       corresponding sensor.
 function [limbClusters, symetryClusters] = ManualyClusterSensors()
-    AllSensors = h5read('amie/amie-kinect-data.hdf','/skeleton_90/axis0');
+    AllSensors = h5read('./datasets/Amie/amie-kinect-data.hdf','/skeleton_90/axis0');
     symetryClusters = zeros(1,length(AllSensors)); 
     limbClusters = zeros(1,length(AllSensors));
 

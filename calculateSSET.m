@@ -9,10 +9,11 @@
 function SSE = calculateSSET(Clusters,Y)
     sz = size(Y);
     am = prod(sz(3:end),'all');
-    SSE = 0;
+    T = zeros(sz(1:2));
     for i=1:am
         D = Y(:,:,i);
         nrm = norm(D);
-        SSE = SSE + calculateSSE(Clusters,D)/nrm;
+        T = T+D./nrm;
     end
+    SSE = calculateSSE(Clusters,T);
 end

@@ -5,7 +5,7 @@ function result = timeApproxMethods(methods,Ys,rs,dim,options)
         options.normalize = false;
     end
     
-    assert(length(Ys) == 1 || length(rs) == 1,"You can not vary the time and the tensors at the same time.");
+    assert(length(Ys) == 1 || length(rs) == 1,"You can not vary the samplerate and the tensors at the same time.");
     result = zeros(length(methods),max(length(Ys),length(rs)));
     Rs = ones(length(Ys),length(rs));
     if options.normalize
@@ -14,7 +14,9 @@ function result = timeApproxMethods(methods,Ys,rs,dim,options)
         Rs = rs*(lengths(1)./lengths).^dims.*Rs';
     else
         Rs = rs.*Rs';
+%         Rs = Rs';
     end
+    
     for i=1:length(methods)
         Y = Ys{1,1};
         [~] = getApproxSim(methods(i),Rs(1,1),Y,dim);

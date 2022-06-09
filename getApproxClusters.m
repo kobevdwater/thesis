@@ -15,10 +15,6 @@
 %Supported methods:
 %   Venu: using venuflattening and spectral clustering.
 %   VenuP: using venuflattening to cluster the third mode.
-%   VenuD: using venuflattening to cluster based on distance matrix.
-%   VenuHi: the same as Venu, but using random fibers.
-%   VenuSp: the same as Venu, but using fibers that are spread out as far
-%   as possible.
 %   FSTD1: using FSTD and ClusterOnTucker1
 %   FSTD2: using FSTD and ClusterOnTucker2
 %   FSTD3: using FSTD and ClusterOnTucker3
@@ -36,6 +32,8 @@
 %   VenuRa: using Venu, but using random fibers.
 %   VenuSp: using Venu, but chosing fibers that are spread out as far as
 %       possible.
+%   VenuF: using Venu, but do not precompute the similarity matrix for
+%       spectral clustering.
 %   FSTDX1: using FSTDX and ClusterOnTucker1.
 %   FSTDY1: using FSTDY and ClusterOnTucker1.
 %   FSTDZ1: using FSTDZ and ClusterOnTucker1.
@@ -43,6 +41,9 @@
 %   ParCubennX1: using ParCubennX and ClusterOnCP.
 %   ParCubeX1: using ParCubeX and ClusterOnCP.
 %   MACH_HOSVDnn1: using HACH_HOSVDnn and ClusterOnTucker1.
+%   MACHF1: using MACH_HOSVD, but do not precompute the similarity matrix
+%       for spectral clustering.
+%   FSTDYD1: using FSTDY1 but also use second factor matrix for clustering.
 function Clusters = getApproxClusters(method, samplerate,tensors,k)
     if (isfield(tensors,'Y'))
         Y = tensors.Y;
@@ -58,10 +59,6 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             r = floor(samplerate*prod(sz(2:end),'all'));
             simMatrix = venuFlatten(Y,r);
             Clusters = spectralClustering(simMatrix,k);
-        case "VenuF"
-            r = floor(samplerate*prod(sz(2:end),'all'));
-            [~,Feat] = venuFlatten(Y,r);
-            Clusters = spectralClustering(Feat,k,"preComputed",false);
         case "VenuP"
             %limit r to same amount as dataentries when we would use P
             %instead of Y.
@@ -102,9 +99,6 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
         case "MACH1"
             [G,U] = MACH_HOSVD(Y,15,samplerate);
             Clusters = clusterOnTucker(G,U{1,1},k);
-        case "MACHF1"
-            [G,U] = MACH_HOSVD(Y,15,samplerate);
-            Clusters = clusterOnTuckerF(G,U{1,1},k);
         case "MACHP1"
             %Higher sr so amount of entries used is the same as a "normal
             %tensor".
@@ -134,13 +128,31 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             Clusterings = getFSTDClusters(Y,r,k);
             Sim = SimFromClusterings(Clusterings);
             Clusters = spectralClustering(Sim,k);
-        case "Tm"
-            T = getApproxReconstruction("FSTD",Y,samplerate);
+        case "FSTDFlatten"
+            T = getApproxReconstruction("FSTDY",Y,samplerate);
+            
+            Tm = sum(T,3:length(sz));
+            Tm = (Tm+Tm')/2;
+            Clusters = spectralClustering(Tm,k,"isDist",true);
+        case "MACHFlatten"
+            T = getApproxReconstruction("MACH20",Y,samplerate);
+            Tm = sum(T,3);
+            Tm = max(0,Tm);
+            Tm = (Tm+Tm')/2;
+            isDist = false;
+            if sum(Tm,"all")/length(Tm)^2 < trace(Tm)/length(Tm)
+                isDist = false;
+            end
+            Clusters = spectralClustering(Tm,k,"isDist",isDist);
+        case "SOLFlatten"
+            a = sqrt(samplerate/2);
+            T = getSOLRADMapprox(Y,a);
             Tm = sum(T,3);
             Tm = (Tm+Tm')/2;
-%             Tm = sum(Y,3);
             Clusters = spectralClustering(Tm,k,"isDist",true);
- %Experimental
+ %%%%%%%%%%%%%%%
+ %Experimental %
+ %%%%%%%%%%%%%%%
         case "VenuD"
             r = floor(samplerate*prod(sz(2:end),'all'));
             [~,Dist] = venuFlatten(Y,r);
@@ -152,15 +164,18 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
             Clusters = spectralClustering(simMatrix,k);
         case "VenuSp"
             r  = floor(samplerate*prod(sz(2:end),'all'));
-            [simMatrix,feat] = venuFlatten(Y,r,"abc",2);
+            simMatrix = venuFlatten(Y,r,"abc",2);
             Clusters = spectralClustering(simMatrix,k);
-%             Clusters = spectralcluster(feat,k);
         case "VenuSpP"
             %limit r to same amount as dataentries when we would use P
             %instead of Y.
             r = floor(samplerate*prod(sz(1:end),'all')/sz(3));
             simMatrix = venuFlattenP(P,r,"abc",2);
             Clusters = spectralClustering(simMatrix,k);
+        case "VenuF"
+            r = floor(samplerate*prod(sz(2:end),'all'));
+            [~,Feat] = venuFlatten(Y,r);
+            Clusters = spectralClustering(Feat,k,"preComputed",false);
         case "FSTDX1"
             r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
             [W,Cn] = FSTDX(Y,r);
@@ -208,6 +223,9 @@ function Clusters = getApproxClusters(method, samplerate,tensors,k)
         case "MACHnan1"
             [G,U] = MACH_HOSVDnan(Y,15,samplerate);
             Clusters = clusterOnTucker(G,U{1,1},k);
+        case "MACHF1"
+            [G,U] = MACH_HOSVD(Y,15,samplerate);
+            Clusters = clusterOnTuckerF(G,U{1,1},k);
         case "FSTDVenu"
             r = floor(sqrt(samplerate*prod(sz,'all')/(sum(sz,'all'))));
             [~,~,Co] = FSTDY(Y,r);

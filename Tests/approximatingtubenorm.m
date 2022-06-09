@@ -2,17 +2,20 @@
 %matricization based on the mode 1 and 2 norms. 
 %Turns out it works fairly well. Does not capture extreme values.
 initialize;
-M3 = tens2mat(Yn,3);
+norm_Yn = Yn;
+% for i=1:size(Yn,3)
+%     norm_Yn(:,:,i) = Yn(:,:,i)./norm(Yn(:,:,i));
+% end
+M3 = tens2mat(norm_Yn,1);
 realNorm = vecnorm(M3);
-norm1 = sum(vecnorm(Yn),3);
-norm2 = sum(vecnorm(Yn),3);
 nrm = squeeze(vecnorm(Yn));
-approx2 = kron(nrm,nrm);
-approx2 = sum(approx2,2);
-% approx = kron(norm1,norm2);
 approx = OpstellenKansverdeling(Yn);
-approx = approx(:);
-plot(realNorm./norm(realNorm));
-hold on; plot(approx./norm(approx));
-plot(approx2./norm(approx2));
-legend("real","approx","approx2");
+
+approx = approx(:)';
+realNorm_normalized = realNorm./norm(realNorm);
+approxNorm_normalized = approx./norm(approx);
+plot(realNorm_normalized);
+hold on; plot(approxNorm_normalized);
+legend("real","approx");
+relative_error = abs(approxNorm_normalized-realNorm_normalized)./realNorm_normalized;
+figure; plot(relative_error);legend("relative error");

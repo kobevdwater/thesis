@@ -8,13 +8,9 @@ function simMatrix = SimFromClusterings(Clusterings)
     simMatrix = zeros(sz);
     for cl=1:clsz
         cluster = Clusterings(cl,:);
-        for i=1:sz
-            for j=i:sz
-                if (cluster(i) == cluster(j))
-                    simMatrix(i,j)  = simMatrix(i,j)+1;
-                end
-            end
-        end
+        diff = cluster - cluster';
+        simMatrix = simMatrix + double(diff==0);
+
     end
     simMatrix = simMatrix + simMatrix' - diag(diag(simMatrix));
     simMatrix = simMatrix./max(simMatrix,[],"all");

@@ -1,5 +1,5 @@
-%Compair spectral and kmeans clustering
-%creating non-convex clusters.
+%Compairing spectral and kmeans clustering on non-convex clusters.
+%Creation of two c-shaped clusters.
 xs = [0.5, -0.5, 0.5; 0,1,0];
 ys = [1,2,3;0,1,2];
 t = 1:3;
@@ -11,16 +11,7 @@ points(2,:) = arrayfun(@(x) (x+(rand()-0.5)*0.1 ),yy(:));
 plot(points(2,:),points(1,:),'.');
 
 kClusters = kmeans(points',2);
-colors = ['r','b'];
-markers = ['+','s'];
-figure(); hold on;
-for i=1:1000
-    plot(points(2,i),points(1,i),'Color',colors(kClusters(i)),'Marker',markers(kClusters(i)));
-end
-hold off;
+figure;gscatter(points(1,:),points(2,:),kClusters);
 
 sClusters = spectralcluster(points',2);
-figure(); hold on;
-for i=1:1000
-    plot(points(2,i),points(1,i),'Color',colors(sClusters(i)),'Marker',markers(sClusters(i)));
-end
+figure;gscatter(points(1,:),points(2,:),sClusters);

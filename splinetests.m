@@ -1,3 +1,5 @@
+%Testing and plotting different ways to make splines for the basis of the C
+% tensor.
 hold on;
 nbPoints = 5;
 for i=1:5

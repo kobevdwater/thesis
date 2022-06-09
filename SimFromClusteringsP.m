@@ -1,5 +1,5 @@
-%SIMFROMCLUSTERINGS: Create one similarity matrix based on the clusterings.
-% 
+%SIMFROMCLUSTERINGSP: Create one similarity matrix for the third mode based
+%   on the clusterings of the first mode.
 %parameters:
 %   Clusterings: matrix containing the different clusterings in the rows.
 %result:

@@ -1,9 +1,11 @@
 %GETTUCKERCLUSTERS get clusters based on a Tucker decomposition
 %parameters:
 %   method: The method to use
-
-
+%   G: core of Tucker decomposition
+%   U: factor matrices of the Tucker decomposition
+%   k: amount of clusters
 function Clusters = getTuckerClusters(method,G,U,k)
+    warning("Depricated: use getExactclusters or getApproxClusters instead.");
     switch method
         case "Tucker1"
             Clusters = clusterOnTucker(G,U{1,1},k);

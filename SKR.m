@@ -1,3 +1,4 @@
+%SKR: I have no clue what this function is used for. 
 function Zs = SKR(S,A)
     warning("The function SKR is run. Find out where and see why it is used.")
     [s,~] = size(S);

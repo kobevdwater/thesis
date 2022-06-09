@@ -1,35 +1,40 @@
 %COLORMAPCLUSTERS: Color the different cities based on a clustering. Cities
 %in the same cluster will have the same color.
 %parameters:
-%   Clusters: a clustering of the cities.
+%   Clusters: a clustering of the cities. 
 %   options.allCities: Should be true if the clustering contains all cities
 %       and false if it only contains the major cities.
+% See also building_tensors/buildingS
 function colorMapClusters(Clusters,options)
     arguments
         Clusters
         options.allCities {mustBeNumericOrLogical} = false
+        options.datalocation = "./datasets/Weather/"
     end
     lnspecs = ["r+","g+",'b+','c+','m+','y+',"r*","g*",'b*','c*','m*','y*'];
-    opts = detectImportOptions('./weather/archive/GlobalLandTemperaturesByMajorCity.csv');
+    opts = detectImportOptions(options.datalocation+"/archive/GlobalLandTemperaturesByMajorCity.csv");
     opts = setvartype(opts,{'City'},'categorical');
     if options.allCities
-        G = readtable('./weather/archive/GlobalLandTemperaturesByCity.csv',opts);
+        G = readtable(options.datalocation+"archive/GlobalLandTemperaturesByCity.csv",opts);
     else
-        G = readtable('./weather/archive/GlobalLandTemperaturesByMajorCity.csv',opts);
+        G = readtable(options.datalocation+"archive/GlobalLandTemperaturesByMajorCity.csv",opts);
     end
     I = find(year(G{:,1}) == 1999);
     G = G(I,:);
 
-    Img = imread('./weather/world.jpg');
+    Img = imread(options.datalocation+"world.jpg");
     Cit = unique(G{:,4});
-    imshow(Img);
+    figure();imshow(Img);
     sz = size(Img);
     np = sz(1:2)./2;
+    %pixels per degree verticaly (lattitude) 
     ppdv = sz(1)/180;
+    %pixels per degree horizonaly (longitude)
     ppdh = sz(2)/360;
     hold on;
     
     for c = 1:length(Cit)
+        %finding coordinate for city and pixels of the city
         index = find(G{:,4}==Cit(c),1,'first');
         lat = G{index,6};
         lat = lat{1,1};

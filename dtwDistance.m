@@ -4,6 +4,7 @@
 %   w: the size of the window.
 %returns:
 %   dist: dtw-distance between a1 and a2
+%Depricated: use build-in function instead.
 function dist = dtwDistance(a1,a2,w,options)
     arguments
         a1
@@ -11,6 +12,7 @@ function dist = dtwDistance(a1,a2,w,options)
         w = false
         options.visualize {mustBeNumericOrLogical} = false
     end
+    warning("Do not use the dtwDistance function, use the build-in function instead.")
     n = length(a1); m= length(a2);
     if ~w
         w = max(n,m);

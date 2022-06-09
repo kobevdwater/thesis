@@ -3,7 +3,7 @@
 % This might take a while.
 % Will not overload any variable in the workspace. If a variable with the
 % name already exists, this vatiable will not be changed.
-% For loading the 4d tensor, you need split.hdf which contians the
+% For loading the 4d tensors, you need split.hdf which contians the
 % split data. This data is not included in the dataset.
 %loaded variable:
 %   Yn: tensor of Amie dataset compairing different persons based on the

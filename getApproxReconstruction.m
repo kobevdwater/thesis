@@ -1,3 +1,21 @@
+%GETAPPROXRECONSTRUCTION: get a reconstruction of the given tensor based on
+%   a sampling method.
+% parameters:
+%   method: The method used.
+%   Y: The tensor to reconstruct.
+%   samplerate: the samplerate to use.
+% result:
+%   Approx: the approximation of the given tensor.
+% supported methods: 
+%   FSTD(X,Y,Z): 
+%       X: random sampling.
+%       Y: sampling based on relative error.
+%       Z: sampling based on a distribution based on the relative error.
+%   ParCube(10,20):
+%       10,20: rang of the used CP decomposition.
+%   MACH(10,20):
+%       10,20: rang of the used Tucker decompostion.
+%   ParCubenn: using a non-negative CP decomposition.
 function Approx = getApproxReconstruction(method,Y,samplerate)
     sz = size(Y);
     switch method
@@ -36,11 +54,8 @@ function Approx = getApproxReconstruction(method,Y,samplerate)
             [G,U] = MACH_HOSVDX(Y,20,samplerate);
             Approx = lmlragen(U,G);
         case "Tucker"
-%             sz = size(Y)
             [U,G] = mlsvd(Y,[45,45,45]);
             Approx = lmlragen(U,G);
-
-
         otherwise
             warning('unexpected method name '+ method)
     end

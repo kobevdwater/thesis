@@ -1,3 +1,31 @@
+%SSEPRTEST: Calcuate the SSE and precision of different cluster methods on
+%   a tensor.
+%parameters:
+%   ks: amount of clusters. Can be an array. Will plot one figure for each
+%       k in ks. Multiples ks will only work when there are no expected
+%       clusters.
+%   T: The tensor to cluster. Can be a struct containing multiple tensors.
+%   Td: The tensor to caclulate the SSE of the resulting clustering.
+%   Tp: The tensor to use for the P-methods clustering the third mode.
+%       expected that size(Tp,3) = size(T,1);
+%   methods: the methods to test.
+%   clusterFunction: the function used to create clusters. 
+%       possible functions: getApproxClusters, getExactClusters.
+%   evalPoints: the samplingrates for wich a clustering is created when 
+%           function getApproxClusters is used.
+%       the rang of the decomposition when the function getExctClusters is
+%           used.
+%   options.retries: Amount of times the test is retried. Results will be
+%       averaged.
+%   options.show: true: create a plot of the results.
+%   options.expected: the expected clusters. If no expected clusters are
+%       given, no precision plots will be made.
+%   options.Tm: flattened version of T. Results of clustering this matrix
+%       are refered to as "FromMatrix". 
+%   options.precompDecomp: precompute the decompositon of T so this is not
+%       done multiple times when creating clusters with getExactClusters.
+%   options.tensorNames: Names for different tensor when T contains
+%       multiple tensors.
 function SSEmean = SSEPrTest(ks,T,Td,Tp,methods,clusterFunction,evalPoints,options)
     arguments
         ks; T; Td; Tp
@@ -5,7 +33,6 @@ function SSEmean = SSEPrTest(ks,T,Td,Tp,methods,clusterFunction,evalPoints,optio
         options.retries {mustBeInteger,mustBeNonzero, mustBePositive} = 1
         options.expected = false
         options.Tm = false
-        options.amount {mustBeInteger,mustBeNonzero, mustBePositive} = 10
         options.show = true
         options.precompDecomp = false;
         options.tensorNames = false;
@@ -105,9 +132,6 @@ function SSEmean = SSEPrTest(ks,T,Td,Tp,methods,clusterFunction,evalPoints,optio
     end
     close(f);
 end
-
-
-
 
 function SSE = calcMatrixSSE(k,T)
     sz = size(T);

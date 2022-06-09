@@ -27,6 +27,7 @@ function U = ParCube(X,sr,options)
     Us = cpd(Xs,dim);
     j=1;
     U = {};
+    %Sizing up decomposition.
     for i=1:length(originalsz)
         if originalsz(i) == 1
             M = zeros(sz(i),dim);
